@@ -48,8 +48,8 @@ contract('Droken Tests', accounts => {
         const tokensFinales = await droken.totalSupply.call();
         
         assert.equal(Number(tokensFinales), Number(tokensIniciales), 'El número total de Drokens existentes no es correcto');
-        assert.equal(Number(saldoFinalFrom), Number(saldoInicialFrom) - 1000, 'El salfo final del ordenante no es correcto');
-        assert.equal(Number(saldoFinalTo), Number(saldoInicialTo) + 1000, 'El salfo final del destinatario no es correcto');
+        assert.equal(Number(saldoFinalFrom), Number(saldoInicialFrom) - 1000, 'El saldo final del ordenante no es correcto');
+        assert.equal(Number(saldoFinalTo), Number(saldoInicialTo) + 1000, 'El saldo final del destinatario no es correcto');
     }); 
 
 });
