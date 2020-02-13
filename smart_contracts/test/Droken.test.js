@@ -4,6 +4,8 @@ const truffleAssert = require("truffle-assertions");
 contract("Droken Tests", accounts => {
     let droken;
 
+    const address0 = "0x0000000000000000000000000000000000000000";
+
     beforeEach(async () => {
         droken = await Droken.new(5000, { from: accounts[0] });
     });
@@ -44,7 +46,7 @@ contract("Droken Tests", accounts => {
         // emit Transfer(sender, recipient, amount);
         truffleAssert.eventEmitted(tx, "Transfer", ev => {
             return (
-                ev.from == '0x0000000000000000000000000000000000000000' &&
+                ev.from == address0 &&
                 ev.to == accounts[0] &&
                 ev.value == 1000
             );

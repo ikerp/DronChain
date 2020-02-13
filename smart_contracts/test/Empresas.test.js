@@ -70,12 +70,12 @@ contract("Empresas Tests", accounts => {
         assert.equal(
             nombre,
             "Empresa 2",
-            "El nombre de la empresa no se inicia correctamente"
+            "El nombre de la empresa no se recupera correctamente"
         );
         assert.equal(
             cif,
             "B26222222",
-            "El CIF de la empresa no se inicia correctamente"
+            "El CIF de la empresa no se recupera correctamente"
         );
     });
 
