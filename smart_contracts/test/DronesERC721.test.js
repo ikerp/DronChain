@@ -5,6 +5,7 @@ contract('DronERC721 Tests', (accounts) => {
     let dronesERC721
 
     const _testOwner = accounts[0]
+    const _testAccount1 = accounts[1]
     const _alturasVuelo = [100, 200]
     const _pesticidas = [1, 3, 5]
     const _coste = 3000
@@ -22,7 +23,7 @@ contract('DronERC721 Tests', (accounts) => {
         const balanceIni = await dronesERC721.balanceOf.call(_testOwner)
         const numeroDronesIni = await dronesERC721.numeroDrones.call()
 
-        await dronesERC721.mint(_alturasVuelo, _pesticidas, _coste, { from: _testOwner })
+        await dronesERC721.mint(_testOwner, _alturasVuelo, _pesticidas, _coste, { from: _testOwner })
         const { id, empresa, alturasVuelo, pesticidas, coste } = await dronesERC721.getDron.call(1)
         const balance = await dronesERC721.balanceOf.call(_testOwner)
         const numeroDrones = await dronesERC721.numeroDrones.call()
@@ -45,12 +46,27 @@ contract('DronERC721 Tests', (accounts) => {
     })
 
     it('Drones no registrados no son accesibles', async () => {       
-        await dronesERC721.mint(_alturasVuelo, _pesticidas, _coste, { from: _testOwner })
+        await dronesERC721.mint(_testOwner, _alturasVuelo, _pesticidas, _coste, { from: _testOwner })
         try {
             await dronesERC721.getDron.call(2)
         } catch (e) {
             assert.equal(e.message, 'Returned error: VM Exception while processing transaction: revert El dron solicitado no existe.',
             'El error de acceso a un dron no existente no es correcto')
         }
+    })
+
+    it('Transferir un dron', async () => {
+        const balanceIni = await dronesERC721.balanceOf.call(_testAccount1)
+
+        await dronesERC721.mint(_testOwner, _alturasVuelo, _pesticidas, _coste, { from: _testOwner })
+        await dronesERC721.transferirDron(1, _testAccount1, { from: _testOwner })
+        const result = await dronesERC721.getDron.call(1)
+        const balance = await dronesERC721.balanceOf.call(_testAccount1)
+        const owner = await dronesERC721.ownerOf.call(1)
+
+        assert.equal(balanceIni, 0, 'El balance inicial no es correcto')
+        assert.equal(balance, 1, 'El balance tras la transferencia no es correcto')
+        assert.equal(result.empresa, _testAccount1, 'La empresa que figura en el registro del dron no es correcta')
+        assert.equal(owner, _testAccount1, 'El owner del dron transferido no es correcto')
     })
 })

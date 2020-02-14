@@ -39,22 +39,27 @@ contract DronesERC721 is ERC721, Ownable {
             coste = drones[dronId].coste;
     }
 
-    function mint(uint256[] memory _alturasVuelo, uint256[] memory _pesticidas, uint256 _coste) public returns (uint256) {
+    function mint(
+        address _empresa,
+        uint256[] memory _alturasVuelo,
+        uint256[] memory _pesticidas,
+        uint256 _coste
+        ) public onlyOwner returns (uint256) {
         contador++;
 
         ERC721._mint(msg.sender, contador);
 
         drones[contador].id = contador;
-        drones[contador].empresa = msg.sender;
+        drones[contador].empresa = _empresa;
         drones[contador].alturasVuelo = _alturasVuelo;
         drones[contador].pesticidas = _pesticidas;
         drones[contador].coste = _coste;
         return contador;
     }
 
-    // function transferirDron(uint256 dronId, address to) public {
-    //     ERC721.transferFrom(drones[dronId].empresa, to, dronId);
+    function transferirDron(uint256 dronId, address to) public {
+        ERC721.transferFrom(drones[dronId].empresa, to, dronId);
 
-    //     drones[dronId].empresa = to;
-    // }
+        drones[dronId].empresa = to;
+    }
 }
