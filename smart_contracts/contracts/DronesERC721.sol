@@ -8,7 +8,8 @@ contract DronesERC721 is ERC721, Ownable {
     struct Dron {
         uint256 id;
         address empresa;
-        uint256[] alturasVuelo;
+        uint256 alturaVueloMinima;
+        uint256 alturaVueloMaxima;
         uint256[] pesticidas;
         uint256 coste;
     }
@@ -28,20 +29,23 @@ contract DronesERC721 is ERC721, Ownable {
     function getDron(uint256 dronId) public view dronExiste(dronId) returns (
         uint256 id,
         address empresa,
-        uint256[] memory alturasVuelo,
+        uint256 alturaVueloMinima,
+        uint256 alturaVueloMaxima,
         uint256[] memory pesticidas,
         uint256 coste
         ) {
             id = drones[dronId].id;
             empresa = drones[dronId].empresa;
-            alturasVuelo = drones[dronId].alturasVuelo;
+            alturaVueloMinima = drones[dronId].alturaVueloMinima;
+            alturaVueloMaxima = drones[dronId].alturaVueloMaxima;
             pesticidas = drones[dronId].pesticidas;
             coste = drones[dronId].coste;
     }
 
     function mint(
         address _empresa,
-        uint256[] memory _alturasVuelo,
+        uint256 _alturaVueloMinima,
+        uint256 _alturaVueloMaxima,
         uint256[] memory _pesticidas,
         uint256 _coste
         ) public onlyOwner returns (uint256) {
@@ -51,7 +55,8 @@ contract DronesERC721 is ERC721, Ownable {
 
         drones[contador].id = contador;
         drones[contador].empresa = _empresa;
-        drones[contador].alturasVuelo = _alturasVuelo;
+        drones[contador].alturaVueloMinima = _alturaVueloMinima;
+        drones[contador].alturaVueloMaxima = _alturaVueloMaxima;
         drones[contador].pesticidas = _pesticidas;
         drones[contador].coste = _coste;
         return contador;
