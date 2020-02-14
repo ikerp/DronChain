@@ -6,7 +6,8 @@ contract('DronERC721 Tests', (accounts) => {
 
     const _testOwner = accounts[0]
     const _testAccount1 = accounts[1]
-    const _alturasVuelo = [100, 200]
+    const _alturaVueloMinima = 100
+    const _alturaVueloMaxima = 200
     const _pesticidas = [1, 3, 5]
     const _coste = 3000
 
@@ -23,8 +24,8 @@ contract('DronERC721 Tests', (accounts) => {
         const balanceIni = await dronesERC721.balanceOf.call(_testOwner)
         const numeroDronesIni = await dronesERC721.numeroDrones.call()
 
-        await dronesERC721.mint(_testOwner, _alturasVuelo, _pesticidas, _coste, { from: _testOwner })
-        const { id, empresa, alturasVuelo, pesticidas, coste } = await dronesERC721.getDron.call(1)
+        await dronesERC721.mint(_testOwner, _alturaVueloMinima, _alturaVueloMaxima, _pesticidas, _coste, { from: _testOwner })
+        const { id, empresa, alturaVueloMinima, alturaVueloMaxima, pesticidas, coste } = await dronesERC721.getDron.call(1)
         const balance = await dronesERC721.balanceOf.call(_testOwner)
         const numeroDrones = await dronesERC721.numeroDrones.call()
         const owner = await dronesERC721.ownerOf.call(id)
@@ -36,9 +37,8 @@ contract('DronERC721 Tests', (accounts) => {
         assert.equal(owner, _testOwner, 'El owner del dron registrado no es correcto')
         assert.equal(id, 1, 'El id registrado no es correcto')
         assert.equal(empresa, _testOwner, 'La empresa registrada no es correcta')
-        _alturasVuelo.forEach((alt, i) => {
-            assert.equal(alturasVuelo[i], _alturasVuelo[i], 'Las alturas registradas no son correctas')
-        })
+        assert.equal(alturaVueloMinima, _alturaVueloMinima, 'Las altura de vuelo mínima registrada no es correcta')
+        assert.equal(alturaVueloMaxima, _alturaVueloMaxima, 'Las altura de vuelo mínima registrada no es correcta')
         _pesticidas.forEach((pest, i) => {
             assert.equal(pesticidas[i], _pesticidas[i], 'Los pesticidas registrados no son correctos')
         })
@@ -46,7 +46,7 @@ contract('DronERC721 Tests', (accounts) => {
     })
 
     it('Drones no registrados no son accesibles', async () => {       
-        await dronesERC721.mint(_testOwner, _alturasVuelo, _pesticidas, _coste, { from: _testOwner })
+        await dronesERC721.mint(_testOwner, _alturaVueloMinima, _alturaVueloMaxima, _pesticidas, _coste, { from: _testOwner })
         try {
             await dronesERC721.getDron.call(2)
         } catch (e) {
@@ -58,7 +58,7 @@ contract('DronERC721 Tests', (accounts) => {
     it('Transferir un dron', async () => {
         const balanceIni = await dronesERC721.balanceOf.call(_testAccount1)
 
-        await dronesERC721.mint(_testOwner, _alturasVuelo, _pesticidas, _coste, { from: _testOwner })
+        await dronesERC721.mint(_testOwner, _alturaVueloMinima, _alturaVueloMaxima, _pesticidas, _coste, { from: _testOwner })
         await dronesERC721.transferirDron(1, _testAccount1, { from: _testOwner })
         const result = await dronesERC721.getDron.call(1)
         const balance = await dronesERC721.balanceOf.call(_testAccount1)
