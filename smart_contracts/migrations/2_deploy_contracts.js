@@ -1,5 +1,5 @@
-const DronesERC721 = artifacts.require("DronesERC721");
+const DronChain = artifacts.require("DronChain");
 
-module.exports = function(deployer) {
-  deployer.deploy(DronesERC721);
+module.exports = async function(deployer) {
+  await deployer.deploy(DronChain);
 };
