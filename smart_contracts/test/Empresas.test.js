@@ -94,4 +94,16 @@ contract("Empresas Tests", accounts => {
             "La empresa no existe"
         );
     });
+
+    it("La cuenta corresponde a una empresa existente", async () => {
+        await empresas.registrarEmpresa(
+            accounts[3],
+            "Empresa 3",
+            "B26333333",
+            { from: accounts[0] }
+        );        
+        const existe = await empresas.isEmpresa.call(accounts[3]);
+
+        assert.equal(existe, true, "La existencia de la empresa no se valida correctamente");
+    });    
 });

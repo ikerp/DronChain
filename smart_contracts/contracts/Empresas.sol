@@ -45,6 +45,15 @@ contract Empresas is Ownable {
     }
 
     /**
+     * @dev Devuelve si la cuenta corresponde a una empresa.
+     * @param _cuenta Cuenta de la empresa.
+     * @return Booleano indicando si es empresa o no.
+     */
+    function isEmpresa(address _cuenta) public view returns (bool) {
+        return empresas[_cuenta].existe;
+    }
+
+    /**
      * @dev Se lanza si es llamado por cualquier cuenta de empresa que no exista
      */
     modifier empresaValida(address _cuenta) {
