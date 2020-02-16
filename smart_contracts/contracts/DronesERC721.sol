@@ -17,6 +17,15 @@ contract DronesERC721 is ERC721, Ownable {
     uint256 private contador = 0;
     mapping(uint256 => Dron) private drones;
 
+    event DronRegistrado(
+        uint256 id,
+        address indexed empresa,
+        uint256 alturaVueloMinima,
+        uint256 alturaVueloMaxima,
+        uint256[] pesticidas,
+        uint256 coste
+    );
+
     modifier dronExiste(uint256 dronId) {
         require (drones[dronId].id == dronId, 'El dron solicitado no existe.');
         _;
@@ -48,10 +57,10 @@ contract DronesERC721 is ERC721, Ownable {
         uint256 _alturaVueloMaxima,
         uint256[] memory _pesticidas,
         uint256 _coste
-        ) public onlyOwner returns (uint256) {
+        ) public onlyOwner {
         contador++;
 
-        ERC721._mint(msg.sender, contador);
+        ERC721._mint(_empresa, contador);
 
         drones[contador].id = contador;
         drones[contador].empresa = _empresa;
@@ -59,7 +68,8 @@ contract DronesERC721 is ERC721, Ownable {
         drones[contador].alturaVueloMaxima = _alturaVueloMaxima;
         drones[contador].pesticidas = _pesticidas;
         drones[contador].coste = _coste;
-        return contador;
+
+        emit DronRegistrado(contador, _empresa, _alturaVueloMinima, _alturaVueloMaxima, _pesticidas, _coste);
     }
 
     function transferirDron(uint256 dronId, address to) public {
