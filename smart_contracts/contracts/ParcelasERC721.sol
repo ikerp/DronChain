@@ -62,26 +62,23 @@ contract ParcelasERC721 is ERC721, Ownable {
     }
 
     /**@dev Crea nueva parcela.
-     * @param _to Cuenta de la empresa a la que pertenece.
+     * @param _empresa Cuenta de la empresa a la que pertenece.
      * @param _alturaVueloMinima Altura vuelo mínima permitida en la parcela.
      * @param _alturaVueloMaxima Altura vuelo máxima permitida en la parcela.
      * @param _pesticida Pesticida aceptado en la parcela.
-     * @return Entero indicando el identificador de la parcela creada.
      */
-    function mint(address _to, uint256 _alturaVueloMinima, uint256 _alturaVueloMaxima, uint256 _pesticida)
+    function mint(address _empresa, uint256 _alturaVueloMinima, uint256 _alturaVueloMaxima, uint256 _pesticida)
         public
         onlyOwner
-        returns (uint256)
     {
         contador++;
 
-        ERC721._mint(_to, contador);
+        ERC721._mint(_empresa, contador);
 
         parcelas[contador].id = contador;
-        parcelas[contador].empresa = _to;
+        parcelas[contador].empresa = _empresa;
         parcelas[contador].alturaVueloMinima = _alturaVueloMinima;
         parcelas[contador].alturaVueloMaxima = _alturaVueloMaxima;
         parcelas[contador].pesticida = _pesticida;
-        return contador;
     }
 }
