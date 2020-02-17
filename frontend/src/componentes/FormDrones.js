@@ -62,7 +62,7 @@ function FormDrones({dronChain, owner}) {
 
                     <div className="form-group row">
                         <label htmlFor="pesticidas" className="col-sm-3 col-form-label">
-                            Seleccione pesticidas deseados
+                            Pesticidas disponibles
                         </label>    
                         <div className="col-sm-9">
                             <select
