@@ -120,7 +120,7 @@ function App() {
       }
       // Mostrar mensaje de cambio de cuenta
       console.log('--- EL USUARIO CAMBIO DE CUENTA ---');
-      if (empresas.length !== 0 && cuenta !== 'undefined') {
+      if (empresas.length !== 0 && cuenta !== undefined && owner !== undefined) {
         console.log('cuenta:',cuenta)
         console.log('owner:',owner)
         if (cuenta === owner) {
@@ -131,28 +131,28 @@ function App() {
           comprobarUsuario(cuenta);
         }
       }     
-    }, [ cuenta, empresas ]
+    }, [ cuenta, empresas, owner ]
   );
 
   return (
     <div className="App container-fluid">
-      { tipoUsuario === ANONIMO ? <h1>WELCOME TO DRONCHAIN</h1> : null }
+      { (tipoUsuario === ANONIMO || cuenta === undefined) ? <h1>WELCOME TO DRONCHAIN</h1> : null }
       <div className="row mt-2">
         <div className="col-12 col-md-4">
           <div className="card bg-secondary">
-              <div className="card-header text-white text-uppercase">
-                  <h4 className="mb-0"><strong>Usuario conectado</strong></h4>
-              </div>
-              <div className="card-body bg-light">
-                <h4 className="card-title text-center text-truncate">{ cuenta }</h4>
-                {
-                  cuenta === owner
-                  ? <p className="font-weight-bold">Propietario de la web</p>
-                  : <p className="font-weight-bold">Empresa registrada</p>
-                }
-                <p>DronChain address: { dronChain.address }</p>
-                <p>DronChain owner: { owner }</p>
-              </div>
+            <div className="card-header text-white text-uppercase">
+              <h4 className="mb-0"><strong>Usuario conectado</strong></h4>
+            </div>
+            <div className="card-body bg-light">
+              <h4 className="card-title text-center text-truncate">{ cuenta }</h4>
+              {
+                cuenta === owner
+                ? <p className="font-weight-bold">Propietario de la web</p>
+                : <p className="font-weight-bold">Empresa registrada</p>
+              }
+              <p>DronChain address: { dronChain.address }</p>
+              <p>DronChain owner: { owner }</p>
+            </div>
           </div>
         </div>
         <div className="col-12 col-md-8">
