@@ -17,14 +17,26 @@ contract DronChain is Ownable {
     event ParcelaFumigada(uint256 parcelaId, uint256 dronId);
 
     constructor() public {
-        //drokenContract = new Droken(5000);
+        drokenContract = new Droken(5000);
         dronesContract = new DronesERC721();
-        //parcelasContract = new ParcelasERC721();
-        //empresasContract = new Empresas();
+        parcelasContract = new ParcelasERC721();
+        empresasContract = new Empresas();
+    }
+
+    function getDrokenContract() public view returns (Droken) {
+        return drokenContract;
     }
 
     function getDronesContract() public view returns (DronesERC721) {
         return dronesContract;
+    }
+
+    function getParcelasContract() public view returns (ParcelasERC721) {
+        return parcelasContract;
+    }
+
+    function getEmpresasContract() public view returns (Empresas) {
+        return empresasContract;
     }
 
     function registrarDron(
