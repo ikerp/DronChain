@@ -6,6 +6,11 @@ import ListadoDrones from './componentes/ListadoDrones';
 
 import DronChainContract from './dronChain';
 import DronesERC721Contract from './dronesERC721';
+import EmpresasContract from './empresas';
+
+const PROPIETARIO = 'propietario';
+const EMPRESA = 'empresa';
+const ANONIMO = 'anonimo';
 
 function App() {
   // State (hooks) ------------------
@@ -15,8 +20,12 @@ function App() {
   const [ dronChain, setDronChain ] = useState([]);
   // Instancia del SC DronesERC721
   const [ dronesERC721, setDronesERC721 ] = useState([]);  
+  // Instancia del SC Empresas
+  const [ empresas, setEmpresas ] = useState([]);  
   // Cuenta con la que se esta trabajando
   const [ cuenta, setCuenta ] = useState(undefined);
+  // Tipo de usuario validado
+  const [ tipoUsuario, setTipoUsuario ] = useState(ANONIMO);
   // Drones existentes
   const [ drones, setDrones ] = useState([]);
 
@@ -32,8 +41,9 @@ function App() {
           const web3 = await getWeb3();
           setWeb3(web3);      
           
-          // Obtener la cuenta
-          const cuenta = (await web3.eth.getAccounts())[0];       
+          // Inicializar la cuenta del usuario
+          const cuenta = (await web3.eth.getAccounts())[0];
+          setCuenta(cuenta.toLowerCase()); // Metamask trabaja en minusculas    
 
           // Inicializar la instancia del DronChain con el provider actual
           const dronChain = await DronChainContract(web3.currentProvider);
@@ -43,37 +53,23 @@ function App() {
           const dronesERC721Address = await dronChain.getDronesContract();
           const dronesERC721 = await DronesERC721Contract(web3.currentProvider, dronesERC721Address);
           setDronesERC721(dronesERC721);
-          
+          const empresasAddress = await dronChain.getEmpresasContract();
+          const empresas = await EmpresasContract(web3.currentProvider, empresasAddress);
+          setEmpresas(empresas);
 
           const owner = await dronChain.owner();
-          setOwner(owner);          
-          
-/*
+          setOwner(owner.toLowerCase());          
+
           // Registrarse mediante Metamask al evento que se ejecuta al actualizarse la cuenta
           // "publicConfigStore" permite registrarse a diferentes eventos 
           web3.currentProvider.publicConfigStore.on('update', async function(event) {
             // Actualizar el valor de la cuenta al proporcionado por "event.selectedAddress"
-            setCuenta(cuenta.toLowerCase()); // Metamask trabaja en minusculas
-            
-            setCuenta({
-              cuenta: event.selectedAddress.toLowerCase() // Metamask trabaja en minusculas
-            }, () => {
-                // Cargar la aplicacion cuando account tenga el valor establecido
-                // Esto es asi debido a que setState es asincrono
-                load();
-            });
+            if (event.selectedAddress === null) {
+              setCuenta(undefined); // Metamask esta desactivado
+            } else {
+              setCuenta(event.selectedAddress.toLowerCase()); // Metamask trabaja en minusculas
+            }            
           });
-*/
-          // Guardar la cuenta en el estado
-          setCuenta(cuenta.toLowerCase()); // Metamask trabaja en minusculas
-          /*setCuenta({
-            cuenta: cuenta.toLowerCase() // Metamask trabaja en minusculas
-          }, () => {
-              // Cargar la aplicacion cuando account tenga el valor establecido
-              // Esto es asi debido a que setState es asincrono
-              load();
-          });       */   
-
 
           // Levantar listeners de eventos
           // Gestionar el evento de dron registrado
@@ -103,21 +99,44 @@ function App() {
         }
       }  
 
-      //if (typeof web3 === 'undefined') {
-        init();
-        console.log('------INICIALIZANDO APLICACION------');
-      //}
+      init();
+      console.log('------INICIALIZANDO APLICACION------');
     }, []
   )  
 
   useEffect(
     () =>{
-      // Verificar tipo de usuario
-    }, [ cuenta ]
+      const comprobarUsuario = async account => {
+        const result = await empresas.isEmpresa(cuenta);
+        if (result) {
+          // Empresa registrada: acceso parcial
+          console.log('--- EMPRESA REGISTRADA ---')
+          setTipoUsuario(EMPRESA);
+        } else {
+          // Empresa sin registrar: formulario registro
+          console.log('--- EMPRESA SIN REGISTRAR ---')
+          setTipoUsuario(ANONIMO);
+        }
+      }
+      // Mostrar mensaje de cambio de cuenta
+      console.log('--- EL USUARIO CAMBIO DE CUENTA ---');
+      if (empresas.length !== 0 && cuenta !== 'undefined') {
+        console.log('cuenta:',cuenta)
+        console.log('owner:',owner)
+        if (cuenta === owner) {
+          // Propietario de la web: acceso total
+          console.log('--- PROPIETARIO ---')
+          setTipoUsuario(PROPIETARIO);
+        } else {        
+          comprobarUsuario(cuenta);
+        }
+      }     
+    }, [ cuenta, empresas ]
   );
 
   return (
     <div className="App container-fluid">
+      { tipoUsuario === ANONIMO ? <h1>WELCOME TO DRONCHAIN</h1> : null }
       <div className="row mt-2">
         <div className="col-12 col-md-4">
           <div className="card bg-secondary">
@@ -126,6 +145,11 @@ function App() {
               </div>
               <div className="card-body bg-light">
                 <h4 className="card-title text-center text-truncate">{ cuenta }</h4>
+                {
+                  cuenta === owner
+                  ? <p className="font-weight-bold">Propietario de la web</p>
+                  : <p className="font-weight-bold">Empresa registrada</p>
+                }
                 <p>DronChain address: { dronChain.address }</p>
                 <p>DronChain owner: { owner }</p>
               </div>
