@@ -4,7 +4,7 @@ import DatosUsuario from './DatosUsuario';
 import FormDrones from './FormDrones';
 import ListadoDrones from './ListadoDrones';
 
-function PanelPrincipal(props) {
+function PanelPropietario(props) {
     const { dronChain, owner, cuenta, empresas, drones } = props;
     return(
         <div className="App container-fluid">
@@ -31,4 +31,4 @@ function PanelPrincipal(props) {
     )
 }
 
-export default PanelPrincipal;
+export default PanelPropietario;

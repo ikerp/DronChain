@@ -3,17 +3,15 @@ import { BrowserRouter, Route } from 'react-router-dom';
 import getWeb3 from './getWeb3';
 
 import Bienvenida from './componentes/Bienvenida';
-import PanelPrincipal from './componentes/PanelPrincipal';
+import PanelPropietario from './componentes/PanelPropietario';
+import PanelEmpresa from './componentes/PanelEmpresa';
 import DatosUsuario from './componentes/DatosUsuario';
 
 import DronChainContract from './dronChain';
 import DronesERC721Contract from './dronesERC721';
 import EmpresasContract from './empresas';
 
-const PROPIETARIO = 'propietario';
-const EMPRESA = 'empresa';
-const ANONIMO = 'anonimo';
-const SIN_METAMASK = 'sin metamask';
+import { PROPIETARIO, EMPRESA, ANONIMO, SIN_METAMASK } from './utils/config';
 
 function App() {
   // State (hooks) ------------------
@@ -109,7 +107,7 @@ function App() {
   )  
 
   useEffect(
-    () =>{
+    () => {
       const comprobarUsuario = async account => {
         if (empresas.length !== 0 && owner !== undefined) {          
           console.log('cuenta:',cuenta)
@@ -143,59 +141,51 @@ function App() {
   );
 
   return (
-    <BrowserRouter>
-      <Route
-        exact path='/'
-        render={() => (
-          <Bienvenida
-            cuenta={cuenta}
-            tipoUsuario={tipoUsuario}
-            setTipoUsuario={setTipoUsuario}
-            setCuenta={setCuenta}
-          />
-        )}
-      />
-      <Route
-        exact path='/dronchain'
-        render={() => (
-          <Fragment>
-            <DatosUsuario
-              dronChain={dronChain}
-              owner={owner}
+    <Fragment>
+
+      <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <a class="navbar-brand font-weight-bolder disabled" href="#" aria-disabled="true">DronChain</a>
+      </nav>
+
+      <BrowserRouter>
+        <Route
+          exact path='/'
+          render={() => (
+            <Bienvenida
               cuenta={cuenta}
-              empresas={empresas}            
+              tipoUsuario={tipoUsuario}
+              setTipoUsuario={setTipoUsuario}
+              setCuenta={setCuenta}
             />
-            <PanelPrincipal
-              dronChain={dronChain}
-              owner={owner}
-              cuenta={cuenta}
-              empresas={empresas}
-              drones={drones}
-            />
-          </Fragment>
-        )}
-      />
-      <Route
-        exact path='/empresas'
-        render={() => (
-          <Fragment>
-            <DatosUsuario
-              dronChain={dronChain}
-              owner={owner}
-              cuenta={cuenta}
-              empresas={empresas}            
-            />
-            <PanelPrincipal
+          )}
+        />
+        <Route
+          exact path='/dronchain'
+          render={() => (
+            <PanelPropietario
               dronChain={dronChain}
               owner={owner}
               cuenta={cuenta}
               empresas={empresas}
               drones={drones}
             />
-          </Fragment>
-        )}
-      />      
-    </BrowserRouter>
+          )}
+        />
+        <Route
+          exact path='/empresas'
+          render={() => (
+            <PanelEmpresa
+              dronChain={dronChain}
+              owner={owner}
+              cuenta={cuenta}
+              empresas={empresas}
+              drones={drones}
+            />
+          )}
+        />      
+      </BrowserRouter>
+
+    </Fragment>
   );
 }
 

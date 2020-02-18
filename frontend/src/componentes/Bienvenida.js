@@ -1,9 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-const PROPIETARIO = 'propietario';
-const EMPRESA = 'empresa';
-const ANONIMO = 'anonimo';
+import { PROPIETARIO, EMPRESA, ANONIMO, SIN_METAMASK } from '../utils/config';
 
 function Bienvenida(props) {
 
@@ -14,33 +12,38 @@ function Bienvenida(props) {
             case PROPIETARIO: { 
                 return(
                     <div className="row justify-content-center">
-                        <div className="alert alert-light text-center border" role="alert">
+                        <div className="alert alert-light text-center border border-secondary" role="alert">
                             <h4 className="alert-heading">¡MetaMask ha sido detectado!</h4>
-                            <p>Bienvenido de nuevo, <span className="font-weight-bold">{ cuenta }</span></p>
-                            <p>Si la cuenta es correcta pulse en Continuar. Si no lo es, seleccione la cuenta adecuada.</p>
+                            <p>Bienvenido de nuevo.</p>
+                            <p className="lead">Cuenta:  <span className="font-weight-bold">{ cuenta }</span></p>
+                            <p>Es Ud. el <span className="font-weight-bold">propietario</span> de la aplicación.</p>
+                            <p className="mb-0">Si la cuenta es correcta pulse en Continuar.</p>
+                            <p>Si no lo es, seleccione la cuenta adecuada en MetaMask.</p>
                             <Link to="/dronchain" className="btn btn-secondary btn-lg text-decoration-none" role="button">Continuar</Link>
                         </div>
                     </div>
                 )
-               break; 
             } 
             case EMPRESA: { 
                 return(
                     <div className="row justify-content-center">
-                        <div className="alert alert-light text-center border" role="alert">
+                        <div className="alert alert-light text-center border border-secondary" role="alert">
                             <h4 className="alert-heading">¡MetaMask ha sido detectado!</h4>
-                            <p>Bienvenido de nuevo, <span className="font-weight-bold">{ cuenta }</span></p>
-                            <p>Si la cuenta es correcta pulse en Continuar. Si no lo es, seleccione la cuenta adecuada.</p>
+                            <p>Bienvenido de nuevo.</p>
+                            <p className="lead">Cuenta:  <span className="font-weight-bold">{ cuenta }</span></p>
+                            <p>Nombre: nombreEmpresa</p>
+                            <p>CIF: cifEmpresa</p>
+                            <p className="mb-0">Si la cuenta es correcta pulse en Continuar.</p>
+                            <p>Si no lo es, seleccione la cuenta adecuada en MetaMask.</p>
                             <Link to="/empresas" className="btn btn-secondary btn-lg text-decoration-none" role="button">Continuar</Link>
                         </div>
                     </div>
                 )
-               break; 
             } 
             case ANONIMO: { 
                 return(
                     <div className="row justify-content-center">
-                        <div className="alert alert-light text-center border" role="alert">
+                        <div className="alert alert-light text-center border border-secondary" role="alert">
                             <h4 className="alert-heading">¡MetaMask ha sido detectado!</h4>
                             <p>Para poder continuar deberá registrarse como empresa.</p>
                             <p>Una vez dado de alta podrá comenzar a gestionar sus parcelas y contratar los drones para que estas sean fumigadas.</p>
@@ -48,17 +51,15 @@ function Bienvenida(props) {
                         </div>
                     </div>
                 )
-                break; 
              }             
             default: { 
                 return(
                     <div className="row justify-content-center">
-                        <div className="alert alert-light border" role="alert">
-                            <h4>¡Por favor, inicie sesión en MetaMask para poder continuar!</h4>
+                        <div className="alert alert-light border border-danger" role="alert">
+                            <h4 className="p-2 m-0 text-danger">¡Por favor, inicie sesión en MetaMask para poder continuar!</h4>
                         </div>
                     </div>
                 )
-               break; 
             }
         }
     }

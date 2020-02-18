@@ -6,11 +6,11 @@ const EMPRESA = 'empresa';
 function DatosUsuario(props) {
     const { dronChain, owner, cuenta, empresas } = props;
     return(
-        <div className="card bg-secondary">
-            <div className="card-header text-white text-uppercase">
+        <div className="card bg-light border-secondary h-100">
+            <div className="card-header bg-secondary text-white text-uppercase">
                 <h4 className="mb-0"><strong>Usuario conectado</strong></h4>
             </div>
-            <div className="card-body bg-light">             
+            <div className="card-body">             
                 {
                     cuenta === owner
                     ? <h4 className="font-weight-bold">Propietario de la web</h4>

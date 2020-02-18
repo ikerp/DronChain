@@ -21,11 +21,11 @@ function FormDrones({dronChain, owner}) {
     }
 
     return(
-        <div className="card bg-secondary">
-            <div className="card-header text-white text-uppercase">
+        <div className="card bg-light border-secondary h-100">
+            <div className="card-header bg-secondary text-white text-uppercase">
                 <h4 className="mb-0"><strong>Introduzca los datos del Dron</strong></h4>
             </div>
-            <div className="card-body bg-light text-left">
+            <div className="card-body text-left">
                 <form onSubmit={registrarDron}>
 
                     <div className="form-group row">
