@@ -84,7 +84,7 @@ function FormDrones({dronChain, owner}) {
 
                     <div className="form-group row">
                         <label htmlFor="coste" className="col-sm-3 col-form-label">
-                            Coste del servicio (Droken)
+                            Coste del servicio (DRK)
                         </label>
                         <div className="col-sm-9">
                             <input
