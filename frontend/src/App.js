@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
+import { BrowserRouter, Route } from 'react-router-dom';
 import getWeb3 from './getWeb3';
 
-import FormDrones from './componentes/FormDrones';
-import ListadoDrones from './componentes/ListadoDrones';
+import Bienvenida from './componentes/Bienvenida';
+import PanelPrincipal from './componentes/PanelPrincipal';
+import DatosUsuario from './componentes/DatosUsuario';
 
 import DronChainContract from './dronChain';
 import DronesERC721Contract from './dronesERC721';
@@ -11,6 +13,7 @@ import EmpresasContract from './empresas';
 const PROPIETARIO = 'propietario';
 const EMPRESA = 'empresa';
 const ANONIMO = 'anonimo';
+const SIN_METAMASK = 'sin metamask';
 
 function App() {
   // State (hooks) ------------------
@@ -66,6 +69,7 @@ function App() {
             // Actualizar el valor de la cuenta al proporcionado por "event.selectedAddress"
             if (event.selectedAddress === null) {
               setCuenta(undefined); // Metamask esta desactivado
+              setTipoUsuario(SIN_METAMASK);
             } else {
               setCuenta(event.selectedAddress.toLowerCase()); // Metamask trabaja en minusculas
             }            
@@ -107,65 +111,91 @@ function App() {
   useEffect(
     () =>{
       const comprobarUsuario = async account => {
-        const result = await empresas.isEmpresa(cuenta);
-        if (result) {
-          // Empresa registrada: acceso parcial
-          console.log('--- EMPRESA REGISTRADA ---')
-          setTipoUsuario(EMPRESA);
-        } else {
-          // Empresa sin registrar: formulario registro
-          console.log('--- EMPRESA SIN REGISTRAR ---')
-          setTipoUsuario(ANONIMO);
-        }
+        if (empresas.length !== 0 && owner !== undefined) {          
+          console.log('cuenta:',cuenta)
+          console.log('owner:',owner)
+          if (cuenta === owner) {
+            // Propietario de la web: acceso total
+            console.log('--- PROPIETARIO ---')
+            setTipoUsuario(PROPIETARIO);
+          } else {        
+            const result = await empresas.isEmpresa(cuenta);
+            if (result) {
+              // Empresa registrada: acceso parcial
+              console.log('--- EMPRESA REGISTRADA ---')
+              setTipoUsuario(EMPRESA);
+            } else {
+              // Empresa sin registrar: formulario registro
+              console.log('--- EMPRESA SIN REGISTRAR ---')
+              setTipoUsuario(ANONIMO);
+            }   
+          }
+        } 
       }
       // Mostrar mensaje de cambio de cuenta
       console.log('--- EL USUARIO CAMBIO DE CUENTA ---');
-      if (empresas.length !== 0 && cuenta !== undefined && owner !== undefined) {
-        console.log('cuenta:',cuenta)
-        console.log('owner:',owner)
-        if (cuenta === owner) {
-          // Propietario de la web: acceso total
-          console.log('--- PROPIETARIO ---')
-          setTipoUsuario(PROPIETARIO);
-        } else {        
-          comprobarUsuario(cuenta);
-        }
-      }     
+      if (cuenta === undefined) {
+        setTipoUsuario(SIN_METAMASK);
+      } else {
+        comprobarUsuario(cuenta);
+      }      
     }, [ cuenta, empresas, owner ]
   );
 
   return (
-    <div className="App container-fluid">
-      { (tipoUsuario === ANONIMO || cuenta === undefined) ? <h1>WELCOME TO DRONCHAIN</h1> : null }
-      <div className="row mt-2">
-        <div className="col-12 col-md-4">
-          <div className="card bg-secondary">
-            <div className="card-header text-white text-uppercase">
-              <h4 className="mb-0"><strong>Usuario conectado</strong></h4>
-            </div>
-            <div className="card-body bg-light">
-              <h4 className="card-title text-center text-truncate">{ cuenta }</h4>
-              {
-                cuenta === owner
-                ? <p className="font-weight-bold">Propietario de la web</p>
-                : <p className="font-weight-bold">Empresa registrada</p>
-              }
-              <p>DronChain address: { dronChain.address }</p>
-              <p>DronChain owner: { owner }</p>
-            </div>
-          </div>
-        </div>
-        <div className="col-12 col-md-8">
-          <FormDrones
-            dronChain={dronChain}
-            owner={owner}  
+    <BrowserRouter>
+      <Route
+        exact path='/'
+        render={() => (
+          <Bienvenida
+            cuenta={cuenta}
+            tipoUsuario={tipoUsuario}
+            setTipoUsuario={setTipoUsuario}
+            setCuenta={setCuenta}
           />
-        </div>
-      </div>
-      <div className="row m-4">
-        <ListadoDrones drones={drones} />
-      </div>
-    </div>
+        )}
+      />
+      <Route
+        exact path='/dronchain'
+        render={() => (
+          <Fragment>
+            <DatosUsuario
+              dronChain={dronChain}
+              owner={owner}
+              cuenta={cuenta}
+              empresas={empresas}            
+            />
+            <PanelPrincipal
+              dronChain={dronChain}
+              owner={owner}
+              cuenta={cuenta}
+              empresas={empresas}
+              drones={drones}
+            />
+          </Fragment>
+        )}
+      />
+      <Route
+        exact path='/empresas'
+        render={() => (
+          <Fragment>
+            <DatosUsuario
+              dronChain={dronChain}
+              owner={owner}
+              cuenta={cuenta}
+              empresas={empresas}            
+            />
+            <PanelPrincipal
+              dronChain={dronChain}
+              owner={owner}
+              cuenta={cuenta}
+              empresas={empresas}
+              drones={drones}
+            />
+          </Fragment>
+        )}
+      />      
+    </BrowserRouter>
   );
 }
 
