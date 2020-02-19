@@ -98,7 +98,6 @@ function FormDrones({dronChain, owner}) {
                                 className="form-control"
                                 id="coste"
                                 placeholder="Coste en Drokens"
-                                step="0.01"
                                 min="0"
                                 onChange={ e => setCoste(e.target.value) }    
                             />
