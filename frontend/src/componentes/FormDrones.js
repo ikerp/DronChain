@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+
+import { PESTICIDAS } from '../utils/config';
 
 function FormDrones({dronChain, owner}) {
 
     const [ alturaVueloMinima, setAlturaVueloMinima ] = useState(0);
     const [ alturaVueloMaxima, setAlturaVueloMaxima ] = useState(0);
-    const [ pesticidas, setPesticidas ] = useState([]);
+    const [ pesticidas, setPesticidas ] = useState(PESTICIDAS);
     const [ coste, setCoste ] = useState(0);
 
     const registrarDron = e => {
         e.preventDefault();
+        // TODO: COMPROBAR CAMPOS FORMULARIO------------
         dronChain.registrarDron(alturaVueloMinima, alturaVueloMaxima, pesticidas, coste, { from: owner });
     }
 
@@ -21,7 +24,7 @@ function FormDrones({dronChain, owner}) {
     }
 
     return(
-        <div className="card bg-light border-secondary h-100">
+        <div className="card bg-light border-secondary h-100 mt-2 mt-sm-0">
             <div className="card-header bg-secondary text-white text-uppercase">
                 <h4 className="mb-0"><strong>Introduzca los datos del Dron</strong></h4>
             </div>
@@ -73,11 +76,14 @@ function FormDrones({dronChain, owner}) {
                                 onChange={handleChange}
                             >
                                 <option disabled>-- Seleccione uno o varios pesticidas --</option>
-                                <option value="1">Pesticida A</option>
-                                <option value="2">Pesticida B</option>
-                                <option value="3">Pesticida C</option>
-                                <option value="4">Pesticida D</option>
-                                <option value="5">Pesticida E</option>
+                                { Object.keys(pesticidas).map((key, index) => 
+                                    <option
+                                        key={ key }
+                                        value={ key }
+                                    >
+                                        { pesticidas[key] }
+                                    </option>
+                                )}
                             </select>                                                  
                         </div>
                     </div>

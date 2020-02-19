@@ -1,7 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
-
-const PROPIETARIO = 'propietario';
-const EMPRESA = 'empresa';
+import React from 'react';
 
 function DatosUsuario(props) {
     const { dronChain, owner, cuenta, empresas } = props;

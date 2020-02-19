@@ -50,7 +50,7 @@ function App() {
           const dronChain = await DronChainContract(web3.currentProvider);
           setDronChain(dronChain);
 
-          // Obtener la instancia de los contratos desplegados en DronChain
+          // Obtener la instancia de los contratos desplegados en DronChain          
           const dronesERC721Address = await dronChain.getDronesContract();
           const dronesERC721 = await DronesERC721Contract(web3.currentProvider, dronesERC721Address);
           setDronesERC721(dronesERC721);
@@ -63,7 +63,7 @@ function App() {
 
           // Registrarse mediante Metamask al evento que se ejecuta al actualizarse la cuenta
           // "publicConfigStore" permite registrarse a diferentes eventos 
-          web3.currentProvider.publicConfigStore.on('update', async function(event) {
+          web3.currentProvider.publicConfigStore.on('update', async event => {
             // Actualizar el valor de la cuenta al proporcionado por "event.selectedAddress"
             if (event.selectedAddress === null) {
               setCuenta(undefined); // Metamask esta desactivado
@@ -73,13 +73,13 @@ function App() {
             }            
           });
 
-          // Levantar listeners de eventos
+          // Levantar listeners de eventos 
           // Gestionar el evento de dron registrado
           // event DronRegistrado(empresa, alturaVueloMinima, alturaVueloMaxima, pesticidas, coste)
           dronesERC721.DronRegistrado({
-            fromBlock:'latest',
+            fromBlock:0,
             toBlock:'latest'
-          }, function(error, event) {
+          }, (error, event) => {
               if (!error) {
                 setDrones(drones => [
                   ...drones,
@@ -110,8 +110,6 @@ function App() {
     () => {
       const comprobarUsuario = async account => {
         if (empresas.length !== 0 && owner !== undefined) {          
-          console.log('cuenta:',cuenta)
-          console.log('owner:',owner)
           if (cuenta === owner) {
             // Propietario de la web: acceso total
             console.log('--- PROPIETARIO ---')
@@ -130,12 +128,13 @@ function App() {
           }
         } 
       }
+
       // Mostrar mensaje de cambio de cuenta
       console.log('--- EL USUARIO CAMBIO DE CUENTA ---');
       if (cuenta === undefined) {
         setTipoUsuario(SIN_METAMASK);
       } else {
-        comprobarUsuario(cuenta);
+        comprobarUsuario(cuenta);        
       }      
     }, [ cuenta, empresas, owner ]
   );
@@ -143,8 +142,8 @@ function App() {
   return (
     <Fragment>
 
-      <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a class="navbar-brand font-weight-bolder disabled" href="#" aria-disabled="true">DronChain</a>
+      <nav className="navbar sticky-top navbar-expand-lg navbar-dark bg-primary">
+        <a className="navbar-brand font-weight-bolder disabled" href="#" aria-disabled="true">DronChain</a>
       </nav>
 
       <BrowserRouter>
@@ -184,6 +183,12 @@ function App() {
           )}
         />      
       </BrowserRouter>
+
+      <footer className="fixed-bottom bg-primary py-2 text-muted text-left">
+        <div className="container-fluid">
+          <span>Autores: Óscar Ortiz e Iker Prego</span>
+        </div>          
+      </footer>  
 
     </Fragment>
   );
