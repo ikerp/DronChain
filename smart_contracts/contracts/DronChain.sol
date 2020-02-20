@@ -104,6 +104,7 @@ contract DronChain is Ownable {
         string memory cif
     ) public {
         empresasContract.registrarEmpresa(msg.sender, nombre, cif);
+        //empresasContract.registrarEmpresa(cuenta, nombre, cif);
     }
 
     function contratarDron(uint256 dronId, uint256 parcelaId) public {

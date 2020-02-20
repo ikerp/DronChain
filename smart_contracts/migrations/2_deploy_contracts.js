@@ -18,7 +18,7 @@ module.exports = async function(deployer) {
     Empresas.address
   );
 
-  await drokens.transferOwnership(DronChain.address);
+  //await drokens.transferOwnership(DronChain.address);
   await drones.transferOwnership(DronChain.address);
   await parcelas.transferOwnership(DronChain.address);
   await empresas.transferOwnership(DronChain.address);
