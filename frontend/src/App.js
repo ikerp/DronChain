@@ -5,10 +5,10 @@ import getWeb3 from './getWeb3';
 import Bienvenida from './componentes/Bienvenida';
 import PanelPropietario from './componentes/PanelPropietario';
 import PanelEmpresa from './componentes/PanelEmpresa';
-import DatosUsuario from './componentes/DatosUsuario';
 
 import DronChainContract from './dronChain';
 import DronesERC721Contract from './dronesERC721';
+import ParcelasERC721Contract from './parcelasERC721';
 import EmpresasContract from './empresas';
 
 import { PROPIETARIO, EMPRESA, ANONIMO, SIN_METAMASK } from './utils/config';
@@ -21,6 +21,8 @@ function App() {
   const [ dronChain, setDronChain ] = useState([]);
   // Instancia del SC DronesERC721
   const [ dronesERC721, setDronesERC721 ] = useState([]);  
+  // Instancia del SC ParcelasERC721
+  const [ parcelasERC721, setParcelasERC721 ] = useState([]);    
   // Instancia del SC Empresas
   const [ empresas, setEmpresas ] = useState([]);  
   // Cuenta con la que se esta trabajando
@@ -54,6 +56,9 @@ function App() {
           const dronesERC721Address = await dronChain.getDronesContract();
           const dronesERC721 = await DronesERC721Contract(web3.currentProvider, dronesERC721Address);
           setDronesERC721(dronesERC721);
+          const parcelasERC721Address = await dronChain.getParcelasContract();
+          const parcelasERC721 = await ParcelasERC721Contract(web3.currentProvider, parcelasERC721Address);
+          setParcelasERC721(parcelasERC721);          
           const empresasAddress = await dronChain.getEmpresasContract();
           const empresas = await EmpresasContract(web3.currentProvider, empresasAddress);
           setEmpresas(empresas);
@@ -96,6 +101,18 @@ function App() {
                   console.error("DronRegistrado event: ", error);
               }                
           });
+          // Gestionar el evento de empresa registrada
+          // event EmpresaRegistrada(_cuenta, _nombre, _cif)
+          empresas.EmpresaRegistrada({
+            fromBlock:'latest',
+            toBlock:'latest'
+          }, (error, event) => {
+              if (!error) {
+                console.log('------- EVENTO EMPRESA REGISTRADA -------');
+              } else {
+                  console.error("EmpresaRegistrada event: ", error);
+              }                
+          });
         } catch (error) {
           console.error('ERROR: No se pudieron cargar web3, la cuenta o el contrato.');
         }
@@ -108,16 +125,16 @@ function App() {
 
   useEffect(
     () => {
-      const comprobarUsuario = async account => {
-        if (empresas.length !== 0 && owner !== undefined) {          
+      const comprobarUsuario = async () => {
+        if (Object.keys(empresas).length !== 0 && owner !== undefined) {          
           if (cuenta === owner) {
-            // Propietario de la web: acceso total
+            // Propietario de la web: acceso a drones
             console.log('--- PROPIETARIO ---')
             setTipoUsuario(PROPIETARIO);
           } else {        
             const result = await empresas.isEmpresa(cuenta);
             if (result) {
-              // Empresa registrada: acceso parcial
+              // Empresa registrada: acceso a empresas/parcelas
               console.log('--- EMPRESA REGISTRADA ---')
               setTipoUsuario(EMPRESA);
             } else {
@@ -134,7 +151,7 @@ function App() {
       if (cuenta === undefined) {
         setTipoUsuario(SIN_METAMASK);
       } else {
-        comprobarUsuario(cuenta);        
+        comprobarUsuario();        
       }      
     }, [ cuenta, empresas, owner ]
   );
@@ -154,7 +171,7 @@ function App() {
               cuenta={cuenta}
               tipoUsuario={tipoUsuario}
               setTipoUsuario={setTipoUsuario}
-              setCuenta={setCuenta}
+              dronChain={dronChain}
             />
           )}
         />

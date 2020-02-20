@@ -1,57 +1,32 @@
 import React, { Fragment } from 'react';
-import { Link } from 'react-router-dom';
 
-import { PROPIETARIO, EMPRESA, ANONIMO, SIN_METAMASK } from '../utils/config';
+import BienvenidaPropietario from './BienvenidaPropietario';
+import BienvenidaEmpresa from './BienvenidaEmpresa';
+import BienvenidaAnonimo from './BienvenidaAnonimo';
+
+import { PROPIETARIO, EMPRESA, ANONIMO } from '../utils/config';
 
 function Bienvenida(props) {
 
-    const { cuenta, tipoUsuario, setTipoUsuario, setCuenta } = props;
+    const { cuenta, tipoUsuario, setTipoUsuario, dronChain } = props;
 
     const bienvenidaTipoUsuario = () => {
         switch(tipoUsuario) { 
             case PROPIETARIO: { 
-                return(
-                    <div className="row justify-content-center w-100">
-                        <div className="alert alert-light text-center border border-secondary" role="alert">
-                            <h4 className="alert-heading">¡MetaMask ha sido detectado!</h4>
-                            <p>Bienvenido de nuevo.</p>
-                            <p className="lead text-truncate">Cuenta:  <span className="font-weight-bold">{ cuenta }</span></p>
-                            <p>Es Ud. el <span className="font-weight-bold">propietario</span> de la aplicación.</p>
-                            <p className="mb-0">Si la cuenta es correcta pulse en Continuar.</p>
-                            <p>Si no lo es, seleccione la cuenta adecuada en MetaMask.</p>
-                            <Link to="/dronchain" className="btn btn-secondary btn-lg text-decoration-none" role="button">Continuar</Link>
-                        </div>
-                    </div>
-                )
+                return <BienvenidaPropietario cuenta={cuenta} />
             } 
             case EMPRESA: { 
-                return(
-                    <div className="row justify-content-center w-100">
-                        <div className="alert alert-light text-center border border-secondary" role="alert">
-                            <h4 className="alert-heading">¡MetaMask ha sido detectado!</h4>
-                            <p>Bienvenido de nuevo.</p>
-                            <p className="lead text-truncate">Cuenta:  <span className="font-weight-bold">{ cuenta }</span></p>
-                            <p>Nombre: nombreEmpresa</p>
-                            <p>CIF: cifEmpresa</p>
-                            <p className="mb-0">Si la cuenta es correcta pulse en Continuar.</p>
-                            <p>Si no lo es, seleccione la cuenta adecuada en MetaMask.</p>
-                            <Link to="/empresas" className="btn btn-secondary btn-lg text-decoration-none" role="button">Continuar</Link>
-                        </div>
-                    </div>
-                )
+                return <BienvenidaEmpresa cuenta={cuenta} />
             } 
             case ANONIMO: { 
-                return(
-                    <div className="row justify-content-center w-100">
-                        <div className="alert alert-light text-center border border-secondary" role="alert">
-                            <h4 className="alert-heading">¡MetaMask ha sido detectado!</h4>
-                            <p>Para poder continuar deberá registrarse como empresa.</p>
-                            <p>Una vez dado de alta podrá comenzar a gestionar sus parcelas y contratar los drones para que estas sean fumigadas.</p>
-                            <Link to="/dronchain" className="btn btn-secondary btn-lg text-decoration-none" role="button">Registrar Empresa</Link>
-                        </div>
-                    </div>
+                return( 
+                    <BienvenidaAnonimo
+                        cuenta={cuenta}
+                        setTipoUsuario={setTipoUsuario}
+                        dronChain={dronChain}
+                    />
                 )
-             }             
+            }             
             default: { 
                 return(
                     <div className="row justify-content-center w-100">

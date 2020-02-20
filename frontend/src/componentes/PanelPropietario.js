@@ -9,7 +9,7 @@ function PanelPropietario(props) {
     const { dronChain, owner, cuenta, empresas, drones } = props;
 
     return(
-        cuenta === undefined
+        cuenta !== owner
         ? 
             <Redirect to='/' />
         :        

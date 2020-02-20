@@ -4,15 +4,52 @@ import { PESTICIDAS } from '../utils/config';
 
 function FormDrones({dronChain, owner}) {
 
-    const [ alturaVueloMinima, setAlturaVueloMinima ] = useState(0);
-    const [ alturaVueloMaxima, setAlturaVueloMaxima ] = useState(0);
-    const [ pesticidas, setPesticidas ] = useState(PESTICIDAS);
-    const [ coste, setCoste ] = useState(0);
+    const [ alturaVueloMinima, setAlturaVueloMinima ] = useState('');
+    const [ alturaVueloMaxima, setAlturaVueloMaxima ] = useState('');
+    const [ pesticidas, setPesticidas ] = useState([]);
+    const [ coste, setCoste ] = useState('');
+    const [ errorAlturaMinima, setErrorAlturaMinima ] = useState(false);
+    const [ errorAlturaMaxima, setErrorAlturaMaxima ] = useState(false);
+    const [ errorPesticidas, setErrorPesticidas ] = useState(false);
+    const [ errorCoste, setErrorCoste ] = useState(false);
 
-    const registrarDron = e => {
+    const validarFormulario = () => {
+        let error = false;
+        // Comprobar campos formulario
+        if (alturaVueloMinima === '' || alturaVueloMinima === 0 || alturaVueloMinima >= alturaVueloMaxima) {
+            setErrorAlturaMinima(true);
+            error = true;
+        }
+        if (alturaVueloMaxima === '' || alturaVueloMaxima === 0 || alturaVueloMaxima <= alturaVueloMinima) {
+            setErrorAlturaMaxima(true);
+            error = true;
+        }        
+        if (pesticidas.length === 0) {
+            setErrorPesticidas(true);
+            error = true;
+        } 
+        if (coste === '' || coste === 0) {
+            setErrorCoste(true);
+            error = true;
+        } 
+        return error;
+    }
+
+    const registrarDron = async e => {
         e.preventDefault();
-        // TODO: COMPROBAR CAMPOS FORMULARIO------------
-        dronChain.registrarDron(alturaVueloMinima, alturaVueloMaxima, pesticidas, coste, { from: owner });
+
+        if (!validarFormulario()) {
+            // TODO: try/catch---------------------------
+            setErrorAlturaMinima(false);
+            setErrorAlturaMaxima(false);
+            setErrorPesticidas(false);
+            setErrorCoste(false);
+            setAlturaVueloMinima('');
+            setAlturaVueloMaxima('');
+            setPesticidas([]);
+            setCoste('');
+            await dronChain.registrarDron(alturaVueloMinima, alturaVueloMaxima, pesticidas, coste, { from: owner });
+        }
     }
 
     const handleChange = e => {
@@ -26,10 +63,10 @@ function FormDrones({dronChain, owner}) {
     return(
         <div className="card bg-light border-secondary h-100 mt-2 mt-sm-0">
             <div className="card-header bg-secondary text-white text-uppercase">
-                <h4 className="mb-0"><strong>Introduzca los datos del Dron</strong></h4>
+                <h4 className="mb-0"><strong>Crear nuevo Dron</strong></h4>
             </div>
-            <div className="card-body text-left">
-                <form onSubmit={registrarDron}>
+            <div className="card-body text-left pb-0">
+                <form onSubmit={registrarDron} noValidate>
 
                     <div className="form-group row">
                         <label htmlFor="alturaVueloMinima" className="col-sm-3 col-form-label">
@@ -38,12 +75,16 @@ function FormDrones({dronChain, owner}) {
                         <div className="col-sm-9">
                             <input
                                 type="number"
-                                className="form-control"
+                                className={`form-control ${errorAlturaMinima ? 'is-invalid' : null}`}
                                 id="alturaVueloMinima"
                                 placeholder="Altura de vuelo mínima (número entero)"
                                 min="1" max="50"
+                                value={alturaVueloMinima}
                                 onChange={ e => setAlturaVueloMinima(e.target.value) }    
                             />
+                            <div className="invalid-feedback font-weight-bold">
+                                Debe ser un número entero menor que la altura máxima.
+                            </div>
                         </div>
                     </div>
 
@@ -54,12 +95,16 @@ function FormDrones({dronChain, owner}) {
                         <div className="col-sm-9">
                             <input
                                 type="number"
-                                className="form-control"
+                                className={`form-control ${errorAlturaMaxima ? 'is-invalid' : null}`}
                                 id="alturaVueloMaxima"
                                 placeholder="Altura de vuelo máxima (número entero)"
                                 min="1" max="50"
+                                value={alturaVueloMaxima}
                                 onChange={ e => setAlturaVueloMaxima(e.target.value) }    
                             />
+                            <div className="invalid-feedback font-weight-bold">
+                                Debe ser un número entero mayor que la altura mínima.
+                            </div>                            
                         </div>
                     </div>      
 
@@ -69,22 +114,25 @@ function FormDrones({dronChain, owner}) {
                         </label>    
                         <div className="col-sm-9">
                             <select
-                                className="custom-select"
+                                className={`custom-select ${errorPesticidas ? 'is-invalid' : null}`}
                                 multiple
-                                size="6"
+                                size={Object.keys(PESTICIDAS).length + 1}
                                 value={pesticidas}
                                 onChange={handleChange}
                             >
                                 <option disabled>-- Seleccione uno o varios pesticidas --</option>
-                                { Object.keys(pesticidas).map((key, index) => 
+                                { Object.keys(PESTICIDAS).map((key, index) => 
                                     <option
                                         key={ key }
                                         value={ key }
                                     >
-                                        { pesticidas[key] }
+                                        { PESTICIDAS[key] }
                                     </option>
                                 )}
-                            </select>                                                  
+                            </select> 
+                            <div className="invalid-feedback font-weight-bold">
+                                Debe elegir al menos un pesticida.
+                            </div>                                                                             
                         </div>
                     </div>
 
@@ -95,18 +143,22 @@ function FormDrones({dronChain, owner}) {
                         <div className="col-sm-9">
                             <input
                                 type="number"
-                                className="form-control"
+                                className={`form-control ${errorCoste ? 'is-invalid' : null}`}
                                 id="coste"
                                 placeholder="Coste en Drokens"
                                 min="0"
+                                value={coste}
                                 onChange={ e => setCoste(e.target.value) }    
                             />
+                            <div className="invalid-feedback font-weight-bold">
+                                Debe ser un valor entero.
+                            </div>                            
                         </div>
                     </div>                     
  
                     <div className="form-group row">
                         <div className="col-12 text-center">
-                            <button type="submit" className="btn btn-secondary">Guardar</button>
+                            <button type="submit" className="btn btn-secondary btn-block">Guardar</button>
                         </div>
                     </div>    
 
