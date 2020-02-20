@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { PESTICIDAS } from '../utils/config';
 
-function FormDrones({dronChain, owner}) {
+function FormDrones({dronChain, cuenta}) {
 
     const [ alturaVueloMinima, setAlturaVueloMinima ] = useState('');
     const [ alturaVueloMaxima, setAlturaVueloMaxima ] = useState('');
@@ -15,20 +15,34 @@ function FormDrones({dronChain, owner}) {
 
     const validarFormulario = () => {
         let error = false;
-        // Comprobar campos formulario
-        if (alturaVueloMinima === '' || alturaVueloMinima === 0 || alturaVueloMinima >= alturaVueloMaxima) {
-            setErrorAlturaMinima(true);
-            error = true;
+        setErrorAlturaMinima(false);
+        setErrorAlturaMaxima(false);
+        setErrorPesticidas(false);
+        setErrorCoste(false);
+
+        if (
+            alturaVueloMinima.match(/^\d+$/) === null ||
+            alturaVueloMinima === "" ||
+            alturaVueloMinima === 0 ||
+            (alturaVueloMinima >= alturaVueloMaxima && alturaVueloMaxima !== "")
+        ) {
+          setErrorAlturaMinima(true);
+          error = true;
         }
-        if (alturaVueloMaxima === '' || alturaVueloMaxima === 0 || alturaVueloMaxima <= alturaVueloMinima) {
-            setErrorAlturaMaxima(true);
-            error = true;
+        if (
+            alturaVueloMaxima.match(/^\d+$/) === null ||
+            alturaVueloMaxima === "" ||
+            alturaVueloMaxima === 0 ||
+            (alturaVueloMaxima <= alturaVueloMinima && alturaVueloMinima !== "")
+        ) {
+          setErrorAlturaMaxima(true);
+          error = true;
         }        
         if (pesticidas.length === 0) {
             setErrorPesticidas(true);
             error = true;
-        } 
-        if (coste === '' || coste === 0) {
+        }
+        if (coste.match(/^\d+$/) === null || coste === "" || coste === 0) {
             setErrorCoste(true);
             error = true;
         } 
@@ -39,16 +53,19 @@ function FormDrones({dronChain, owner}) {
         e.preventDefault();
 
         if (!validarFormulario()) {
-            // TODO: try/catch---------------------------
-            setErrorAlturaMinima(false);
-            setErrorAlturaMaxima(false);
-            setErrorPesticidas(false);
-            setErrorCoste(false);
-            setAlturaVueloMinima('');
-            setAlturaVueloMaxima('');
-            setPesticidas([]);
-            setCoste('');
-            await dronChain.registrarDron(alturaVueloMinima, alturaVueloMaxima, pesticidas, coste, { from: owner });
+            try {
+                setErrorAlturaMinima(false);
+                setErrorAlturaMaxima(false);
+                setErrorPesticidas(false);
+                setErrorCoste(false);
+                setAlturaVueloMinima('');
+                setAlturaVueloMaxima('');
+                setPesticidas([]);
+                setCoste('');
+                await dronChain.registrarDron(alturaVueloMinima, alturaVueloMaxima, pesticidas, coste, { from: cuenta });                
+            } catch (error) {
+                console.error('ERROR: No se pudo crear el dron.');
+            }
         }
     }
 
@@ -63,7 +80,7 @@ function FormDrones({dronChain, owner}) {
     return(
         <div className="card bg-light border-secondary h-100 mt-2 mt-sm-0">
             <div className="card-header bg-secondary text-white text-uppercase">
-                <h4 className="mb-0"><strong>Crear nuevo Dron</strong></h4>
+                <h4 className="mb-0"><strong>Crear Dron</strong></h4>
             </div>
             <div className="card-body text-left pb-0">
                 <form onSubmit={registrarDron} noValidate>

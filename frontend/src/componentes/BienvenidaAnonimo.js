@@ -12,15 +12,13 @@ function BienvenidaAnonimo(props) {
 
     const registrarEmpresa = async e => {
         e.preventDefault();
-        // TODO: try/catch---------------------------
-        try {
-            //await dronChain.registrarEmpresa(cuenta, nombre, cif);
-            dronChain.registrarEmpresa(nombre, cif, { from: cuenta });
+
+        try {            
+            await dronChain.registrarEmpresa(nombre, cif, { from: cuenta });
             setTipoUsuario(EMPRESA);
             history.push('/empresas'); 
         } catch (error) {
             console.error('ERROR: No se pudo crear la empresa.');
-            console.error(error)
         }       
     }
 

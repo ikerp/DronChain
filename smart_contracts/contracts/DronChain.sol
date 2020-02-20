@@ -107,6 +107,14 @@ contract DronChain is Ownable {
         //empresasContract.registrarEmpresa(cuenta, nombre, cif);
     }
 
+    function getDatosEmpresa(address _cuenta)
+        public
+        view
+        returns (string memory nombre, string memory cif)
+    {
+        (nombre, cif) = empresasContract.getDatosEmpresa(_cuenta);
+    }
+
     function contratarDron(uint256 dronId, uint256 parcelaId) public {
         require(
             !dronesContratados[dronId][parcelaId],

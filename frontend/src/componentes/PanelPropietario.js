@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Redirect } from 'react-router-dom';
 
 import DatosUsuario from './DatosUsuario';
@@ -26,7 +26,7 @@ function PanelPropietario(props) {
                     <div className="col-12 col-md-8">
                         <FormDrones
                             dronChain={dronChain}
-                            owner={owner}  
+                            cuenta={cuenta}  
                         />
                     </div>
                 </div>
