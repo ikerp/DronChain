@@ -1,19 +1,24 @@
 import React, { Fragment, useState, useEffect } from 'react';
 
 function DatosUsuario(props) {
-    const { dronChain, owner, cuenta, empresas } = props;
-    
+    const { dronChain, owner, cuenta, saldo } = props;
+
     const [ nombre, setNombre ] = useState('');
     const [ cif, setCif ] = useState('');
 
     useEffect(
         () => {
             const obtenerDatosEmpresa = async () => {
-                const result = await dronChain.getDatosEmpresa(cuenta);
-                setNombre(result.nombre);
-                setCif(result.cif);
+                if (dronChain.isEmpresa(cuenta)) {
+                    const result = await dronChain.getDatosEmpresa(cuenta);
+                    setNombre(result.nombre);
+                    setCif(result.cif);
+                }
             }
-            obtenerDatosEmpresa();
+
+            if (cuenta !== owner) {
+                obtenerDatosEmpresa();
+            } 
         }, []
     )
 
@@ -29,15 +34,19 @@ function DatosUsuario(props) {
                         <Fragment>
                             <h4 className="font-weight-bold">Propietario de la web</h4>
                             <p className="card-title text-truncate lead">{ cuenta }</p>
-                            <p>DronChain address: { dronChain.address }</p>
-                            <p>DronChain owner: { owner }</p>
+                            <h4 className="font-weight-bold mb-0">Saldo disponible (DRK):</h4>
+                            <span className="saldo">{ saldo }</span>
                         </Fragment>
                     :
                         <Fragment>
-                            <h4 className="font-weight-bold">Empresa registrada</h4>
+                            <h4 className="font-weight-bold">Cuenta de Empresa</h4>
                             <p className="card-title text-truncate lead">{ cuenta }</p>
-                            <p>Nombre: { nombre }</p>
-                            <p>CIF: { cif }</p>
+                            <p className="font-weight-bold mb-0">Nombre:</p>
+                            <p className="card-title text-truncate lead">{ nombre }</p>
+                            <p className="font-weight-bold mb-0">CIF:</p>
+                            <p className="card-title text-truncate lead">{ cif }</p>
+                            <h4 className="font-weight-bold mb-0">Saldo disponible (DRK):</h4>
+                            <span className="saldo">{ saldo }</span>                            
                         </Fragment>                         
                 }
 

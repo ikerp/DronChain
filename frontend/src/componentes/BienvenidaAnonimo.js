@@ -3,6 +3,8 @@ import { withRouter } from 'react-router-dom';
 
 import { EMPRESA } from '../utils/config';
 
+const CANTIDAD = 50;
+
 function BienvenidaAnonimo(props) {
 
     const { cuenta, setTipoUsuario, dronChain, history } = props;
@@ -15,11 +17,17 @@ function BienvenidaAnonimo(props) {
 
         try {            
             await dronChain.registrarEmpresa(nombre, cif, { from: cuenta });
+        } catch (error) {
+            console.error('ERROR: No se pudo crear la empresa.');
+        }
+        
+        try {
+            //await dronChain.transferirDrokensIniciales(cuenta, CANTIDAD);------------------
             setTipoUsuario(EMPRESA);
             history.push('/empresas'); 
         } catch (error) {
-            console.error('ERROR: No se pudo crear la empresa.');
-        }       
+            console.error('ERROR: No se pudieron transferir los Drokens.');
+        }
     }
 
     return(

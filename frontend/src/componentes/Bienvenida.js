@@ -13,10 +13,15 @@ function Bienvenida(props) {
     const bienvenidaTipoUsuario = () => {
         switch(tipoUsuario) { 
             case PROPIETARIO: { 
-                return <BienvenidaPropietario cuenta={cuenta} />
+                return <BienvenidaPropietario cuenta={cuenta} /> 
             } 
             case EMPRESA: { 
-                return <BienvenidaEmpresa cuenta={cuenta} />
+                return(
+                    <BienvenidaEmpresa
+                        cuenta={cuenta}
+                        dronChain={dronChain}
+                    />
+                ) 
             } 
             case ANONIMO: { 
                 return( 

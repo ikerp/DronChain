@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-function BienvenidaPropietario({cuenta}) {
+function BienvenidaPropietario({ cuenta }) {
     return(
         <div className="row justify-content-center w-100">
             <div className="alert alert-light text-center border border-secondary" role="alert">

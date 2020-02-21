@@ -6,10 +6,14 @@ import Bienvenida from './componentes/Bienvenida';
 import PanelPropietario from './componentes/PanelPropietario';
 import PanelEmpresa from './componentes/PanelEmpresa';
 
-import DronChainContract from './dronChain';
-import DronesERC721Contract from './dronesERC721';
-import ParcelasERC721Contract from './parcelasERC721';
-import EmpresasContract from './empresas';
+import DronChainContract from './instancias/dronChain';
+import DronesERC721Contract from './instancias/dronesERC721';
+import ParcelasERC721Contract from './instancias/parcelasERC721';
+import EmpresasContract from './instancias/empresas';
+import DrokenContract from './instancias/droken';
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import { PROPIETARIO, EMPRESA, ANONIMO, SIN_METAMASK } from './utils/config';
 
@@ -17,6 +21,8 @@ function App() {
   // State (hooks) ------------------
   // web3
   const [ web3, setWeb3 ] = useState(undefined);
+
+  // INSTANCIAS CONTRATOS
   // Instancia del SC DronChain
   const [ dronChain, setDronChain ] = useState([]);
   // Instancia del SC DronesERC721
@@ -25,15 +31,25 @@ function App() {
   const [ parcelasERC721, setParcelasERC721 ] = useState([]);    
   // Instancia del SC Empresas
   const [ empresas, setEmpresas ] = useState([]);  
+  // Instancia del SC Droken
+  const [ droken, setDroken ] = useState([]);
+
+  // CUENTAS Y TIPOS DE USUARIO
   // Cuenta con la que se esta trabajando
   const [ cuenta, setCuenta ] = useState(undefined);
   // Tipo de usuario validado
   const [ tipoUsuario, setTipoUsuario ] = useState(ANONIMO);
+  // Propietario de la aplicacion
+  const [owner,setOwner] = useState(undefined);
+
   // Drones existentes
   const [ drones, setDrones ] = useState([]);
+  // Parcelas existentes
+  const [ parcelas, setParcelas ] = useState([]);
+  // Cantidad de Drokens disponibles por usuario
+  const [ saldo, setSaldo ] = useState(0);
 
-
-  const [owner,setOwner] = useState(undefined);
+  const [ toastEmpresaCreada, setToastEmpresaCreada ] = useState(null);
 
   useEffect(
     () => {
@@ -62,9 +78,15 @@ function App() {
           const empresasAddress = await dronChain.getEmpresasContract();
           const empresas = await EmpresasContract(web3.currentProvider, empresasAddress);
           setEmpresas(empresas);
+          const drokenAddress = await dronChain.getDrokenContract();
+          const droken = await DrokenContract(web3.currentProvider, drokenAddress);
+          setEmpresas(droken);          
 
           const owner = await dronChain.owner();
-          setOwner(owner.toLowerCase());          
+          setOwner(owner.toLowerCase()); 
+          
+          const saldo = await dronChain.getDrokens(cuenta);
+          setSaldo(Number(saldo));
 
           // Registrarse mediante Metamask al evento que se ejecuta al actualizarse la cuenta
           // "publicConfigStore" permite registrarse a diferentes eventos 
@@ -80,7 +102,7 @@ function App() {
 
           // Levantar listeners de eventos 
           // Gestionar el evento de dron registrado
-          // event DronRegistrado(empresa, alturaVueloMinima, alturaVueloMaxima, pesticidas, coste)
+          // event DronRegistrado(id, empresa, alturaVueloMinima, alturaVueloMaxima, pesticidas, coste)
           dronesERC721.DronRegistrado({
             fromBlock:0,
             toBlock:'latest'
@@ -101,6 +123,27 @@ function App() {
                   console.error("DronRegistrado event: ", error);
               }                
           });
+          // Gestionar el evento de parcela registrada
+          // event ParcelaRegistrada(id, empresa, alturaVueloMinima, alturaVueloMaxima, pesticidas, coste)
+          parcelasERC721.ParcelaRegistrada({
+            fromBlock:0,
+            toBlock:'latest'
+          }, (error, event) => {
+              if (!error) {
+                setParcelas(parcelas => [
+                  ...parcelas,
+                  {
+                    'id': event.returnValues.id,
+                    'empresa': event.returnValues.empresa,
+                    'alturaVueloMinima': event.returnValues.alturaVueloMinima,
+                    'alturaVueloMaxima': event.returnValues.alturaVueloMaxima,
+                    'pesticida': event.returnValues.pesticida
+                  }
+                ]);
+              } else {
+                  console.error("ParcelaRegistrada event: ", error);
+              }                
+          });          
           // Gestionar el evento de empresa registrada
           // event EmpresaRegistrada(_cuenta, _nombre, _cif)
           empresas.EmpresaRegistrada({
@@ -109,8 +152,33 @@ function App() {
           }, (error, event) => {
               if (!error) {
                 console.log('------- EVENTO EMPRESA REGISTRADA -------');
+                if (cuenta === owner) {
+                  toast.info(' Se ha creado una nueva empresa!', {
+                    containerId: 'toastEmpresaCreada',
+                    position: 'top-right',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true
+                  });
+                }
               } else {
                   console.error("EmpresaRegistrada event: ", error);
+              }                
+          });
+          // Gestionar el evento de transferencia de Drokens realizada
+          // emit Transfer(sender, recipient, amount)
+          droken.Transfer({
+            fromBlock:'latest',
+            toBlock:'latest'
+          }, async (error, event) => {
+              if (!error) {
+                console.log('------- EVENTO TRANSFERENCIA REALIZADA -------');
+                const saldo = await dronChain.getDrokens(cuenta);
+                setSaldo(Number(saldo));                
+              } else {
+                  console.error("Transfer event: ", error);
               }                
           });
         } catch (error) {
@@ -119,7 +187,6 @@ function App() {
       }  
 
       init();
-      console.log('------INICIALIZANDO APLICACION------');
     }, []
   )  
 
@@ -129,17 +196,14 @@ function App() {
         if (Object.keys(empresas).length !== 0 && owner !== undefined) {          
           if (cuenta === owner) {
             // Propietario de la web: acceso a drones
-            console.log('--- PROPIETARIO ---')
             setTipoUsuario(PROPIETARIO);
           } else {        
-            const result = await empresas.isEmpresa(cuenta);
+            const result = await dronChain.isEmpresa(cuenta);
             if (result) {
               // Empresa registrada: acceso a empresas/parcelas
-              console.log('--- EMPRESA REGISTRADA ---')
               setTipoUsuario(EMPRESA);
             } else {
               // Empresa sin registrar: formulario registro
-              console.log('--- EMPRESA SIN REGISTRAR ---')
               setTipoUsuario(ANONIMO);
             }   
           }
@@ -147,7 +211,6 @@ function App() {
       }
 
       // Mostrar mensaje de cambio de cuenta
-      console.log('--- EL USUARIO CAMBIO DE CUENTA ---');
       if (cuenta === undefined) {
         setTipoUsuario(SIN_METAMASK);
       } else {
@@ -182,7 +245,7 @@ function App() {
               dronChain={dronChain}
               owner={owner}
               cuenta={cuenta}
-              empresas={empresas}
+              saldo={saldo}
               drones={drones}
             />
           )}
@@ -194,8 +257,8 @@ function App() {
               dronChain={dronChain}
               owner={owner}
               cuenta={cuenta}
-              empresas={empresas}
-              drones={drones}
+              saldo={saldo}
+              parcelas={parcelas}
             />
           )}
         />      
@@ -205,7 +268,35 @@ function App() {
         <div className="container-fluid">
           <span>Autores: Óscar Ortiz e Iker Prego</span>
         </div>          
-      </footer>  
+      </footer> 
+
+      <ToastContainer
+        enableMultiContainer 
+        containerId={'toastEmpresaCreada'}
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnVisibilityChange
+        draggable
+        pauseOnHover
+      />
+
+      <ToastContainer
+        enableMultiContainer 
+        containerId={'toastDronContratado'}
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnVisibilityChange
+        draggable
+        pauseOnHover
+      />      
 
     </Fragment>
   );

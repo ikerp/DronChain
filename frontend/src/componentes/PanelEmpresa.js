@@ -2,37 +2,43 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 
 import DatosUsuario from './DatosUsuario';
-import FormDrones from './FormDrones';
-import ListadoDrones from './ListadoDrones';
+import FormParcelas from './FormParcelas';
+import ListadoParcelas from './ListadoParcelas';
 
 function PanelEmpresa(props) {
-    const { dronChain, owner, cuenta, empresas, drones } = props;
+    const { dronChain, owner, cuenta, saldo, parcelas } = props;
+
+    const obtenerParcelas = () => {
+        // TODO: filtrar parcelas de la empresa------------------------
+    }
 
     return(
-        cuenta === undefined
+        cuenta === undefined || !dronChain.isEmpresa(cuenta)
         ? 
             <Redirect to='/' />
-        : 
-            <div className="App container-fluid">
+        :        
+            <div className="container-fluid">
                 <div className="row mt-2">
                     <div className="col-12 col-md-4">
                         <DatosUsuario 
                             dronChain={dronChain}
                             owner={owner}
                             cuenta={cuenta}
-                            empresas={empresas}
+                            saldo={saldo}
                         />
                     </div>
                     <div className="col-12 col-md-8">
-                        <FormDrones
+                        <FormParcelas
                             dronChain={dronChain}
-                            owner={owner}  
+                            cuenta={cuenta}  
                         />
                     </div>
                 </div>
-                <div className="row m-4">
-                    <ListadoDrones drones={drones} />
-                </div>   
+                <div className="row mt-2">
+                    <div className="col-12">
+                        <ListadoParcelas parcelas={parcelas} />
+                    </div>
+                </div> 
             </div> 
     )
 }

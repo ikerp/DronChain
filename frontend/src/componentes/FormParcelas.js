@@ -2,23 +2,20 @@ import React, { useState } from 'react';
 
 import { PESTICIDAS } from '../utils/config';
 
-function FormDrones({dronChain, cuenta}) {
+function FormParcelas({dronChain, cuenta}) {
 
     const [ alturaVueloMinima, setAlturaVueloMinima ] = useState('');
     const [ alturaVueloMaxima, setAlturaVueloMaxima ] = useState('');
-    const [ pesticidas, setPesticidas ] = useState([]);
-    const [ coste, setCoste ] = useState('');
+    const [ pesticida, setPesticida ] = useState('');
     const [ errorAlturaMinima, setErrorAlturaMinima ] = useState(false);
     const [ errorAlturaMaxima, setErrorAlturaMaxima ] = useState(false);
-    const [ errorPesticidas, setErrorPesticidas ] = useState(false);
-    const [ errorCoste, setErrorCoste ] = useState(false);
+    const [ errorPesticida, setErrorPesticida ] = useState(false);
 
     const validarFormulario = () => {
         let error = false;
         setErrorAlturaMinima(false);
         setErrorAlturaMaxima(false);
-        setErrorPesticidas(false);
-        setErrorCoste(false);
+        setErrorPesticida(false);
 
         if (
             alturaVueloMinima.match(/^\d+$/) === null ||
@@ -38,52 +35,38 @@ function FormDrones({dronChain, cuenta}) {
           setErrorAlturaMaxima(true);
           error = true;
         }        
-        if (pesticidas.length === 0) {
-            setErrorPesticidas(true);
-            error = true;
-        }
-        if (coste.match(/^\d+$/) === null || coste === "" || coste === 0) {
-            setErrorCoste(true);
+        if (pesticida.length === 0) {
+            setErrorPesticida(true);
             error = true;
         } 
         return error;
     }
 
-    const registrarDron = async e => {
+    const registrarParcela = async e => {
         e.preventDefault();
 
         if (!validarFormulario()) {
             try {
                 setErrorAlturaMinima(false);
                 setErrorAlturaMaxima(false);
-                setErrorPesticidas(false);
-                setErrorCoste(false);
+                setErrorPesticida(false);
                 setAlturaVueloMinima('');
                 setAlturaVueloMaxima('');
-                setPesticidas([]);
-                setCoste('');
-                await dronChain.registrarDron(alturaVueloMinima, alturaVueloMaxima, pesticidas, coste, { from: cuenta });                
+                setPesticida('');
+                await dronChain.registrarParcela(alturaVueloMinima, alturaVueloMaxima, pesticida, { from: cuenta });
             } catch (error) {
-                console.error('ERROR: No se pudo crear el dron.');
+                console.error('ERROR: No se pudo crear la parcela.');
             }
         }
-    }
-
-    const handleChange = e => {
-        const pests = Array.from(
-            e.target.selectedOptions,
-            option => option.value
-        );
-        setPesticidas(pests);
     }
 
     return(
         <div className="card bg-light border-secondary h-100 mt-2 mt-sm-0">
             <div className="card-header bg-secondary text-white text-uppercase">
-                <h4 className="mb-0"><strong>Crear Dron</strong></h4>
+                <h4 className="mb-0"><strong>Crear Parcela</strong></h4>
             </div>
             <div className="card-body text-left pb-0">
-                <form onSubmit={registrarDron} noValidate>
+                <form onSubmit={registrarParcela} noValidate>
 
                     <div className="form-group row">
                         <label htmlFor="alturaVueloMinima" className="col-sm-3 col-form-label">
@@ -131,13 +114,11 @@ function FormDrones({dronChain, cuenta}) {
                         </label>    
                         <div className="col-sm-9">
                             <select
-                                className={`custom-select ${errorPesticidas ? 'is-invalid' : null}`}
-                                multiple
+                                className={`custom-select ${errorPesticida ? 'is-invalid' : null}`}
                                 size={Object.keys(PESTICIDAS).length + 1}
-                                value={pesticidas}
-                                onChange={handleChange}
+                                onChange={ e => setPesticida(e.target.value) }
                             >
-                                <option disabled>-- Seleccione uno o varios pesticidas --</option>
+                                <option disabled>-- Seleccione un pesticida --</option>
                                 { Object.keys(PESTICIDAS).map((key, index) => 
                                     <option
                                         key={ key }
@@ -148,34 +129,14 @@ function FormDrones({dronChain, cuenta}) {
                                 )}
                             </select> 
                             <div className="invalid-feedback font-weight-bold">
-                                Debe elegir al menos un pesticida.
+                                Debe elegir un pesticida.
                             </div>                                                                             
                         </div>
-                    </div>
-
-                    <div className="form-group row">
-                        <label htmlFor="coste" className="col-sm-3 col-form-label">
-                            Coste del servicio (DRK)
-                        </label>
-                        <div className="col-sm-9">
-                            <input
-                                type="number"
-                                className={`form-control ${errorCoste ? 'is-invalid' : null}`}
-                                id="coste"
-                                placeholder="Coste en Drokens"
-                                min="0"
-                                value={coste}
-                                onChange={ e => setCoste(e.target.value) }    
-                            />
-                            <div className="invalid-feedback font-weight-bold">
-                                Debe ser un valor entero.
-                            </div>                            
-                        </div>
-                    </div>                     
+                    </div>                   
  
                     <div className="form-group row">
                         <div className="col-12 text-center">
-                            <button type="submit" className="btn btn-secondary btn-block">Registrar Dron</button>
+                            <button type="submit" className="btn btn-secondary btn-block">Registrar Parcela</button>
                         </div>
                     </div>    
 
@@ -185,4 +146,4 @@ function FormDrones({dronChain, cuenta}) {
     )
 }
 
-export default FormDrones;
+export default FormParcelas;

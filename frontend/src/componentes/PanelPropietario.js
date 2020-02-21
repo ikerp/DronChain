@@ -6,7 +6,7 @@ import FormDrones from './FormDrones';
 import ListadoDrones from './ListadoDrones';
 
 function PanelPropietario(props) {
-    const { dronChain, owner, cuenta, empresas, drones } = props;
+    const { dronChain, owner, cuenta, saldo, drones } = props;
 
     return(
         cuenta !== owner
@@ -20,7 +20,7 @@ function PanelPropietario(props) {
                             dronChain={dronChain}
                             owner={owner}
                             cuenta={cuenta}
-                            empresas={empresas}
+                            saldo={saldo}
                         />
                     </div>
                     <div className="col-12 col-md-8">
