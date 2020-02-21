@@ -16,6 +16,14 @@ contract ParcelasERC721 is ERC721, Ownable {
 
     mapping(uint256 => Parcela) private parcelas;
 
+    event ParcelaRegistrada(
+        uint256 id,
+        address indexed empresa,
+        uint256 alturaVueloMinima,
+        uint256 alturaVueloMaxima,
+        uint256 pesticidas
+    );
+
     /**
      * @dev Se lanza si es llamado por cualquier cuenta de parcela que no exista
      */
@@ -80,5 +88,7 @@ contract ParcelasERC721 is ERC721, Ownable {
         parcelas[contador].alturaVueloMinima = _alturaVueloMinima;
         parcelas[contador].alturaVueloMaxima = _alturaVueloMaxima;
         parcelas[contador].pesticida = _pesticida;
+
+        emit ParcelaRegistrada(contador, _empresa, _alturaVueloMinima, _alturaVueloMaxima, _pesticida);
     }
 }

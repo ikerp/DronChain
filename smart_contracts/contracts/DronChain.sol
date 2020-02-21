@@ -115,6 +115,21 @@ contract DronChain is Ownable {
         (nombre, cif) = empresasContract.getDatosEmpresa(_cuenta);
     }
 
+    function isEmpresa(address _cuenta) public view returns (bool) {
+        return empresasContract.isEmpresa(_cuenta);
+    }
+
+    function getDrokens(address _cuenta) public view returns (uint256) {
+        return drokenContract.balanceOf(_cuenta);
+    }
+
+    function transferirDrokensIniciales(address _cuenta, uint256 _cantidad)
+        public
+        onlyOwner
+    {
+        drokenContract.transfer(_cuenta, _cantidad);
+    }
+
     function contratarDron(uint256 dronId, uint256 parcelaId) public {
         require(
             !dronesContratados[dronId][parcelaId],
