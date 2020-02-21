@@ -12,3 +12,9 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.saldo {
+  color: rgb(117, 80, 23);
+  font-size: 3rem;
+  font-weight: 700;
+}
