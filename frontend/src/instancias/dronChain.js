@@ -3,7 +3,7 @@
 // Habra que ejecutar "truffle compile" y se generara la carpeta "build"
 // En ella se necesitara el archivo "DronChain.json" que contiene el ABI y el 
 // bytecode del smart contract
-import DronChainContract from './contracts/DronChain.json';
+import DronChainContract from '../contracts/DronChain.json';
 
 import contract from '@truffle/contract';
 

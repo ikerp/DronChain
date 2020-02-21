@@ -3,7 +3,7 @@
 // Habra que ejecutar "truffle compile" y se generara la carpeta "build"
 // En ella se necesitara el archivo "Empresas.json" que contiene el ABI y el 
 // bytecode del smart contract
-import EmpresasContract from './contracts/Empresas.json';
+import EmpresasContract from '../contracts/Empresas.json';
 
 import contract from '@truffle/contract';
 
