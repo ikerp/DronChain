@@ -21,7 +21,7 @@ contract ParcelasERC721 is ERC721, Ownable {
         address indexed empresa,
         uint256 alturaVueloMinima,
         uint256 alturaVueloMaxima,
-        uint256 pesticidas
+        uint256 pesticida
     );
 
     /**

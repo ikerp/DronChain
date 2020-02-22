@@ -85,7 +85,6 @@ contract DronChain is Ownable {
     }
 
     function registrarParcela(
-        //address empresa,
         uint256 alturaVueloMinima,
         uint256 alturaVueloMaxima,
         uint256 pesticida
@@ -99,14 +98,22 @@ contract DronChain is Ownable {
     }
 
     function registrarEmpresa(
-        //address cuenta,
         string memory nombre,
-        string memory cif
+        string memory cif,
+        uint256 cantidadTokens
     ) public {
         empresasContract.registrarEmpresa(msg.sender, nombre, cif);
-        //empresasContract.registrarEmpresa(cuenta, nombre, cif);
+        //drokenContract.transfer(msg.sender, cantidadTokens);
+        drokenContract.transferFrom(owner(), msg.sender, cantidadTokens);
     }
-
+/*
+    function transferirDrokensIniciales(address _cuenta, uint256 _cantidad)
+        public
+        onlyOwner
+    {
+        drokenContract.transfer(_cuenta, _cantidad);
+    }
+*/
     function getDatosEmpresa(address _cuenta)
         public
         view
@@ -121,13 +128,6 @@ contract DronChain is Ownable {
 
     function getDrokens(address _cuenta) public view returns (uint256) {
         return drokenContract.balanceOf(_cuenta);
-    }
-
-    function transferirDrokensIniciales(address _cuenta, uint256 _cantidad)
-        public
-        onlyOwner
-    {
-        drokenContract.transfer(_cuenta, _cantidad);
     }
 
     function contratarDron(uint256 dronId, uint256 parcelaId) public {
