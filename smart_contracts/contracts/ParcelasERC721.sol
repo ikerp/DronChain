@@ -17,7 +17,7 @@ contract ParcelasERC721 is ERC721, Ownable {
     mapping(uint256 => Parcela) private parcelas;
 
     event ParcelaRegistrada(
-        uint256 id,
+        uint256 indexed id,
         address indexed empresa,
         uint256 alturaVueloMinima,
         uint256 alturaVueloMaxima,
