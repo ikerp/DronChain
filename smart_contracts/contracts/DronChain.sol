@@ -103,17 +103,9 @@ contract DronChain is Ownable {
         uint256 cantidadTokens
     ) public {
         empresasContract.registrarEmpresa(msg.sender, nombre, cif);
-        //drokenContract.transfer(msg.sender, cantidadTokens);
         drokenContract.transferFrom(owner(), msg.sender, cantidadTokens);
     }
-/*
-    function transferirDrokensIniciales(address _cuenta, uint256 _cantidad)
-        public
-        onlyOwner
-    {
-        drokenContract.transfer(_cuenta, _cantidad);
-    }
-*/
+
     function getDatosEmpresa(address _cuenta)
         public
         view
@@ -142,15 +134,9 @@ contract DronChain is Ownable {
             empresaParcela == msg.sender,
             "El usuario no es el dueño de la parcela"
         );
-        (, address empresaDron, , , , uint256 coste) = dronesContract.getDron(
-            dronId
-        );
 
         // registramos la contratacion del dron para fumigar esa parcela
         dronesContratados[dronId][parcelaId] = true;
-
-        // el dueño de la parcela autoriza a la empresa del dron a gastar una cantidad de droken igual al coste del dron
-        drokenContract.approve(empresaDron, coste);
 
         // emitimos el evento DronContratado(uint256 dronId, uint256 parcelaId)
         emit DronContratado(dronId, parcelaId);
