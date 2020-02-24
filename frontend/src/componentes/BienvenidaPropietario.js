@@ -5,7 +5,7 @@ function BienvenidaPropietario({ cuenta }) {
     return(
         <div className="row justify-content-center w-100">
             <div className="alert alert-light text-center border border-secondary" role="alert">
-                <h4 className="alert-heading">¡MetaMask ha sido detectado!</h4>
+                <h4 className="alert-heading">¡MetaMask ha detectado una cuenta!</h4>
                 <p>Bienvenido de nuevo.</p>
                 <p className="lead text-truncate">Cuenta:  <span className="font-weight-bold">{ cuenta }</span></p>
                 <p>Es Ud. el <span className="font-weight-bold">propietario</span> de la aplicación.</p>

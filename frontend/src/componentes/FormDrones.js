@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { PESTICIDAS } from '../utils/config';
 
-function FormDrones({dronChain, cuenta}) {
+function FormDrones({cuenta, dronChain}) {
 
     const [ alturaVueloMinima, setAlturaVueloMinima ] = useState('');
     const [ alturaVueloMaxima, setAlturaVueloMaxima ] = useState('');
@@ -24,7 +24,7 @@ function FormDrones({dronChain, cuenta}) {
             alturaVueloMinima.match(/^\d+$/) === null ||
             alturaVueloMinima === "" ||
             alturaVueloMinima === 0 ||
-            (alturaVueloMinima >= alturaVueloMaxima && alturaVueloMaxima !== "")
+            (Number(alturaVueloMinima) >= Number(alturaVueloMaxima) && alturaVueloMaxima !== "")
         ) {
           setErrorAlturaMinima(true);
           error = true;
@@ -33,7 +33,7 @@ function FormDrones({dronChain, cuenta}) {
             alturaVueloMaxima.match(/^\d+$/) === null ||
             alturaVueloMaxima === "" ||
             alturaVueloMaxima === 0 ||
-            (alturaVueloMaxima <= alturaVueloMinima && alturaVueloMinima !== "")
+            (Number(alturaVueloMaxima) <= Number(alturaVueloMinima) && alturaVueloMinima !== "")
         ) {
           setErrorAlturaMaxima(true);
           error = true;
@@ -62,9 +62,10 @@ function FormDrones({dronChain, cuenta}) {
                 setAlturaVueloMaxima('');
                 setPesticidas([]);
                 setCoste('');
-                await dronChain.registrarDron(alturaVueloMinima, alturaVueloMaxima, pesticidas, coste, { from: cuenta });                
+                await dronChain.registrarDron(alturaVueloMinima, alturaVueloMaxima, pesticidas, coste, { from: cuenta });
             } catch (error) {
                 console.error('ERROR: No se pudo crear el dron.');
+                console.error(error)
             }
         }
     }

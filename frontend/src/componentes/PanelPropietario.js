@@ -25,8 +25,8 @@ function PanelPropietario(props) {
                     </div>
                     <div className="col-12 col-md-8">
                         <FormDrones
+                            cuenta={cuenta}
                             dronChain={dronChain}
-                            cuenta={cuenta}  
                         />
                     </div>
                 </div>

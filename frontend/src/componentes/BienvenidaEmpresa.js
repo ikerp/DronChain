@@ -5,11 +5,12 @@ function BienvenidaEmpresa({ cuenta, dronChain }) {
     
     const [ nombre, setNombre ] = useState('');
     const [ cif, setCif ] = useState('');
-
+    
     useEffect(
         () => {
+            console.log('BIENVENIDA EMPRESAAAAAAAAAAA')
             const obtenerDatosEmpresa = async () => {
-                if (dronChain.isEmpresa(cuenta)) {
+                if (await dronChain.isEmpresa(cuenta)) {
                     const result = await dronChain.getDatosEmpresa(cuenta);
                     setNombre(result.nombre);
                     setCif(result.cif);
@@ -17,13 +18,13 @@ function BienvenidaEmpresa({ cuenta, dronChain }) {
             }
             
             obtenerDatosEmpresa();
-        }, []
+        }, [ cuenta ]
     )
 
     return(
         <div className="row justify-content-center w-100">
             <div className="alert alert-light text-center border border-secondary" role="alert">
-                <h4 className="alert-heading">¡MetaMask ha sido detectado!</h4>
+                <h4 className="alert-heading">¡MetaMask ha detectado una cuenta!</h4>
                 <p>Bienvenido de nuevo.</p>
                 <p className="lead text-truncate">Cuenta:  <span className="font-weight-bold">{ cuenta }</span></p>
                 <p>Nombre: <span className="font-weight-bold">{ nombre }</span></p>

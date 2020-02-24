@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { PESTICIDAS } from '../utils/config';
 
-function FormParcelas({dronChain, cuenta}) {
+function FormParcelas({cuenta, dronChain}) {
 
     const [ alturaVueloMinima, setAlturaVueloMinima ] = useState('');
     const [ alturaVueloMaxima, setAlturaVueloMaxima ] = useState('');
@@ -10,8 +10,9 @@ function FormParcelas({dronChain, cuenta}) {
     const [ errorAlturaMinima, setErrorAlturaMinima ] = useState(false);
     const [ errorAlturaMaxima, setErrorAlturaMaxima ] = useState(false);
     const [ errorPesticida, setErrorPesticida ] = useState(false);
-
+    console.log('FORM PARCELAAAAAAAAAAAAAAAA')
     const validarFormulario = () => {
+
         let error = false;
         setErrorAlturaMinima(false);
         setErrorAlturaMaxima(false);
@@ -21,7 +22,7 @@ function FormParcelas({dronChain, cuenta}) {
             alturaVueloMinima.match(/^\d+$/) === null ||
             alturaVueloMinima === "" ||
             alturaVueloMinima === 0 ||
-            (alturaVueloMinima >= alturaVueloMaxima && alturaVueloMaxima !== "")
+            (Number(alturaVueloMinima) >= Number(alturaVueloMaxima) && alturaVueloMaxima !== "")
         ) {
           setErrorAlturaMinima(true);
           error = true;
@@ -30,12 +31,12 @@ function FormParcelas({dronChain, cuenta}) {
             alturaVueloMaxima.match(/^\d+$/) === null ||
             alturaVueloMaxima === "" ||
             alturaVueloMaxima === 0 ||
-            (alturaVueloMaxima <= alturaVueloMinima && alturaVueloMinima !== "")
+            (Number(alturaVueloMaxima) <= Number(alturaVueloMinima) && alturaVueloMinima !== "")
         ) {
           setErrorAlturaMaxima(true);
           error = true;
         }        
-        if (pesticida.length === 0) {
+        if (pesticida.match(/^\d+$/) === null) {
             setErrorPesticida(true);
             error = true;
         } 
@@ -47,16 +48,17 @@ function FormParcelas({dronChain, cuenta}) {
 
         if (!validarFormulario()) {
             try {
+                await dronChain.registrarParcela(alturaVueloMinima, alturaVueloMaxima, pesticida, { from: cuenta });
                 setErrorAlturaMinima(false);
                 setErrorAlturaMaxima(false);
                 setErrorPesticida(false);
                 setAlturaVueloMinima('');
                 setAlturaVueloMaxima('');
                 setPesticida('');
-                await dronChain.registrarParcela(alturaVueloMinima, alturaVueloMaxima, pesticida, { from: cuenta });
             } catch (error) {
                 console.error('ERROR: No se pudo crear la parcela.');
-            }
+                console.error(error)
+            }        
         }
     }
 

@@ -9,17 +9,18 @@ function DatosUsuario(props) {
     useEffect(
         () => {
             const obtenerDatosEmpresa = async () => {
-                if (dronChain.isEmpresa(cuenta)) {
+                const isEmpresa = await dronChain.isEmpresa(cuenta);
+                if (isEmpresa) {
                     const result = await dronChain.getDatosEmpresa(cuenta);
                     setNombre(result.nombre);
                     setCif(result.cif);
                 }
             }
 
-            if (cuenta !== owner) {
+            if (cuenta !== owner && cuenta !== undefined) {
                 obtenerDatosEmpresa();
             } 
-        }, []
+        }, [ cuenta ]
     )
 
     return(

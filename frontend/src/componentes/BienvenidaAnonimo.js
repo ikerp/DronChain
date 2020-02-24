@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
 
+import Swal from 'sweetalert2';
+
 import { EMPRESA } from '../utils/config';
 
 const CANTIDAD = 50;
 
 function BienvenidaAnonimo(props) {
 
-    const { cuenta, setTipoUsuario, dronChain, history } = props;
+    const { cuenta, setTipoUsuario, dronChain, setSaldo, history } = props;
 
     const [ nombre, setNombre ] = useState('');
     const [ cif, setCif ] = useState('');
@@ -15,25 +17,47 @@ function BienvenidaAnonimo(props) {
     const registrarEmpresa = async e => {
         e.preventDefault();
 
-        try {            
-            await dronChain.registrarEmpresa(nombre, cif, { from: cuenta });
-        } catch (error) {
-            console.error('ERROR: No se pudo crear la empresa.');
-        }
-        
+        let error = false;
+
         try {
-            //await dronChain.transferirDrokensIniciales(cuenta, CANTIDAD);------------------
-            setTipoUsuario(EMPRESA);
-            history.push('/empresas'); 
-        } catch (error) {
-            console.error('ERROR: No se pudieron transferir los Drokens.');
+            await dronChain.registrarEmpresa(nombre, cif, CANTIDAD, { from: cuenta });
+
+            /*Swal.fire({
+                icon: 'success',
+                title: '¡Empresa creada!',
+                text: 'Gracias por utilizar nuestros servicios',                
+                confirmButtonColor: '#8E8C84'
+            })*/
+        } catch (err) {
+            error = true;
+            console.error('ERROR: No se pudo crear la empresa.');
+
+            /*Swal.fire({
+                icon: 'error',
+                title: '¡Error!',
+                text: 'No se pudo crear la empresa',
+                confirmButtonColor: '#8E8C84'
+            })*/
+        } finally {
+            if (!error) {
+                try {
+                    error = false;
+                    setTipoUsuario(EMPRESA);
+                    const saldo = await dronChain.getDrokens(cuenta, { from: cuenta });
+                    setSaldo(Number(saldo));
+                    history.push('/'); 
+                } catch (error) {
+                    error = true;
+                    console.error('ERROR: No se pudo obtener el saldo de la cuenta.');
+                }
+            }
         }
     }
 
     return(
         <div className="row justify-content-center w-100">
             <div className="alert alert-light text-center border border-secondary pb-0" role="alert">
-                <h4 className="alert-heading">¡MetaMask ha sido detectado!</h4>
+                <h4 className="alert-heading">¡MetaMask ha detectado una cuenta!</h4>
                 <p className="lead text-truncate">Cuenta:  <span className="font-weight-bold">{ cuenta }</span></p>
                 <p className="mb-0">Para poder continuar deberá registrarse como empresa.</p>
                 <p>Una vez dado de alta podrá comenzar a gestionar sus parcelas y<br/> contratar los drones para que estas sean fumigadas.</p>

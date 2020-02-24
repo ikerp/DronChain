@@ -8,7 +8,7 @@ import { PROPIETARIO, EMPRESA, ANONIMO } from '../utils/config';
 
 function Bienvenida(props) {
 
-    const { cuenta, tipoUsuario, setTipoUsuario, dronChain } = props;
+    const { cuenta, tipoUsuario, setTipoUsuario, dronChain, setSaldo } = props;
 
     const bienvenidaTipoUsuario = () => {
         switch(tipoUsuario) { 
@@ -29,6 +29,7 @@ function Bienvenida(props) {
                         cuenta={cuenta}
                         setTipoUsuario={setTipoUsuario}
                         dronChain={dronChain}
+                        setSaldo={setSaldo}
                     />
                 )
             }             
