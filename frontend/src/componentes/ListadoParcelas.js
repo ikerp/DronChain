@@ -8,7 +8,10 @@ function ListadoParcelas(props) {
 
     const { dronChain, droken, cuenta, parcelasEmpresa, drones } = props;
 
-    const [ dron, setDron ] = useState('');
+    const [ dron, setDron ] = useState({
+        parcelaId: 0,
+        dronId: 0
+    });
 
     const contratarDron = async (parcelaId, dronId) => {
         let error = false;
@@ -31,18 +34,18 @@ function ListadoParcelas(props) {
                     console.error('No se ha podido contratar el Dron')
                 }                
             }
-            if (!error) {
+            /*if (!error) {
                 try {
                     await dronChain.asignarDron(Number(dronId), Number(parcelaId), { from: cuenta });               
                 } catch (err) {
                     error = true;
                     console.error('No se ha podido asignar el Dron')
                 }                
-            }
+            }*/
             if (!error) {
                 Swal.fire({
                     icon: 'success',
-                    title: '¡Parcela fumigada!',
+                    title: `¡Dron ${dronId} contratado por ${dron.coste} DRK!`,
                     text: 'Gracias por utilizar nuestros servicios',                
                     confirmButtonColor: '#8E8C84'
                 });
@@ -50,7 +53,7 @@ function ListadoParcelas(props) {
                 Swal.fire({
                     icon: 'error',
                     title: '¡Proceso detenido!',
-                    text: 'La parcela no ha podido ser fumigada',                
+                    text: 'El dron no ha podido ser contratado',                
                     confirmButtonColor: '#8E8C84'
                 });                
             }          
@@ -102,8 +105,8 @@ function ListadoParcelas(props) {
                                                 <select
                                                     id={ parcela.id }
                                                     className="form-control form-control-sm"
-                                                    value={dron}
-                                                    onChange={ e => setDron(e.target.value) }
+                                                    value={dron.parcelaId === parcela.id ? dron.dronId : ''}
+                                                    onChange={ e => setDron({parcelaId: parcela.id, dronId: e.target.value}) }
                                                 >
                                                     <option value="">-- Seleccione un dron --</option>
                                                     {                                            

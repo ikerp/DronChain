@@ -32,7 +32,10 @@ function PanelPropietario(props) {
                 </div>
                 <div className="row mt-2">
                     <div className="col-12">
-                        <ListadoDrones drones={drones} />
+                        <ListadoDrones
+                            drones={drones}
+                            dronChain={dronChain}
+                        />
                     </div>
                 </div> 
             </div> 

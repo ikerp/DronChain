@@ -1,8 +1,55 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { PESTICIDAS } from '../utils/config';
+import dronChain from '../instancias/dronChain';
 
-function ListadoDrones({drones}) {
+function ListadoDrones({drones, dronChain}) {
+   
+    const contratosPendientes = async dronId => {
+        let contratosPendientes = [];
+
+        const eventosDronContratado = await dronChain.getPastEvents('DronContratado', {
+            fromBlock:0,
+            toBlock:'latest'            
+        });
+        
+        /*
+        eventosDronContratado.map(evento => {
+            let contrato = `${evento.returnValues.dronId}:${evento.returnValues.parcelaId}`;
+            contratosPendientes.push(contrato);
+        });*/
+
+        contratosPendientes = eventosDronContratado.filter(evento => 
+            Number(evento.returnValues.dronId) === dronId
+        ).map(ev => 
+            ev.returnValues.parcelaId
+        );
+
+        const eventosParcelaFumigada = await dronChain.getPastEvents('ParcelaFumigada', {
+            fromBlock:0,
+            toBlock:'latest'            
+        });     
+        console.log('eventosParcelaFumigada:',eventosParcelaFumigada)
+        /*eventosParcelaFumigada.map(evento => {
+            let fumigacion = `${evento.returnValues.dronId}:${evento.returnValues.parcelaId}`;
+            let index = contratosPendientes.indexOf(fumigacion);
+            if (index !== -1) {
+                contratosPendientes.splice(index, 1);
+            }
+        });   */
+        eventosParcelaFumigada.filter(evento => 
+            Number(evento.returnValues.dronId) === dronId
+        ).map(ev => {
+            let index = contratosPendientes.indexOf(ev.returnValues.parcelaId);
+            if (index !== -1) {
+                contratosPendientes.splice(index, 1);
+            }
+        });
+        console.log('contratosPendientes:', contratosPendientes)
+    }
+
+    //useEffect(() => { contratosPendientes() }, []);
+    contratosPendientes(1);
 
     if (drones.length === 0) return null;
 

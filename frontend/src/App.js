@@ -150,7 +150,7 @@ function App() {
         // Gestionar el evento de empresa registrada
         // event EmpresaRegistrada(_cuenta, _nombre, _cif)
         empresas.EmpresaRegistrada({
-          fromBlock:0,//'latest',
+          fromBlock:'latest',
           toBlock:'latest'
         }, async (error, event) => {
 
