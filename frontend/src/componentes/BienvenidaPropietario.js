@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 function BienvenidaPropietario({ cuenta }) {
     return(
-        <div className="row justify-content-center w-100">
+        <div className="d-flex justify-content-center">
             <div className="alert alert-light text-center border border-secondary" role="alert">
                 <h4 className="alert-heading">¡MetaMask ha detectado una cuenta!</h4>
                 <p>Bienvenido de nuevo.</p>

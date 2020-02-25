@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { Redirect, withRouter } from 'react-router-dom';
 
 import DatosUsuario from './DatosUsuario';
@@ -46,10 +46,10 @@ function PanelEmpresa(props) {
     )
 
     return(
-        //(cuenta === owner || cuenta === undefined)
-        //?
-        //    <Redirect to='/' />
-        //:        
+        (cuenta === owner || cuenta === undefined)
+        ?
+            <Redirect to='/' />
+        :        
             <div className="container-fluid">
                 <div className="row mt-2">
                     <div className="col-12 col-md-4">
@@ -78,7 +78,7 @@ function PanelEmpresa(props) {
                         />
                     </div>
                 </div> 
-        </div>
+            </div>
     )
 }
 

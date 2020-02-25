@@ -118,9 +118,10 @@ function FormParcelas({cuenta, dronChain}) {
                             <select
                                 className={`custom-select ${errorPesticida ? 'is-invalid' : null}`}
                                 size={Object.keys(PESTICIDAS).length + 1}
+                                value={pesticida}
                                 onChange={ e => setPesticida(e.target.value) }
                             >
-                                <option disabled>-- Seleccione un pesticida --</option>
+                                <option value='' disabled>-- Seleccione un pesticida --</option>
                                 { Object.keys(PESTICIDAS).map((key, index) => 
                                     <option
                                         key={ key }

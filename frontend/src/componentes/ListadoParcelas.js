@@ -8,6 +8,8 @@ function ListadoParcelas(props) {
 
     const { dronChain, droken, cuenta, parcelasEmpresa, drones } = props;
 
+    const [ dron, setDron ] = useState('');
+
     const contratarDron = async (parcelaId, dronId) => {
         let error = false;
 
@@ -22,7 +24,7 @@ function ListadoParcelas(props) {
             if (!error) {
                 error = false;
                 try {
-                    await dronChain.contratarDron(dronId, parcelaId, { from: cuenta });
+                    await dronChain.contratarDron(Number(dronId), Number(parcelaId), { from: cuenta });
                 } catch (err) {
                     error = true;
                     await droken.decreaseAllowance(dronChain.address, Number(dron.coste), { from: cuenta });
@@ -31,18 +33,29 @@ function ListadoParcelas(props) {
             }
             if (!error) {
                 try {
-                    await dronChain.asignarDron(dronId, parcelaId, { from: cuenta });
-                    /*Swal.fire({
-                        icon: 'success',
-                        title: '¡Parcela fumigada!',
-                        text: 'Gracias por utilizar nuestros servicios',                
-                        confirmButtonColor: '#8E8C84'
-                    })    */                
+                    await dronChain.asignarDron(Number(dronId), Number(parcelaId), { from: cuenta });               
                 } catch (err) {
+                    error = true;
                     console.error('No se ha podido asignar el Dron')
                 }                
             }
+            if (!error) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Parcela fumigada!',
+                    text: 'Gracias por utilizar nuestros servicios',                
+                    confirmButtonColor: '#8E8C84'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: '¡Proceso detenido!',
+                    text: 'La parcela no ha podido ser fumigada',                
+                    confirmButtonColor: '#8E8C84'
+                });                
+            }          
         }
+        setDron('');
     } 
     console.log('LISTADO PARCELAAAAAAAAAAAAAA')
     
@@ -89,6 +102,8 @@ function ListadoParcelas(props) {
                                                 <select
                                                     id={ parcela.id }
                                                     className="form-control form-control-sm"
+                                                    value={dron}
+                                                    onChange={ e => setDron(e.target.value) }
                                                 >
                                                     <option value="">-- Seleccione un dron --</option>
                                                     {                                            

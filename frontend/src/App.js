@@ -150,9 +150,14 @@ function App() {
         // Gestionar el evento de empresa registrada
         // event EmpresaRegistrada(_cuenta, _nombre, _cif)
         empresas.EmpresaRegistrada({
-          fromBlock:'latest',
+          fromBlock:0,//'latest',
           toBlock:'latest'
-        }, (error, event) => {
+        }, async (error, event) => {
+
+          console.log('EmpresaRegistrada:',event.blockNumber)
+          const latest = await web3.eth.getBlockNumber();
+          console.log(latest)
+
             if (!error) {
               console.log('------- EVENTO EMPRESA REGISTRADA -------');
               if (cuenta === owner) {
@@ -312,6 +317,7 @@ function App() {
             />
           )}
         />
+        
         <Route
           exact
           path="/dronchain"
@@ -340,14 +346,14 @@ function App() {
               drones={drones}
             />
           )}
-        />
+        />          
       </BrowserRouter>
 
       <footer className="fixed-bottom bg-primary py-2 text-muted text-left">
         <div className="container-fluid">
           <span>Autores: Óscar Ortiz e Iker Prego</span>
         </div>
-      </footer>
+      </footer> 
     </Fragment>
   );
 }

@@ -35,7 +35,7 @@ function Bienvenida(props) {
             }             
             default: { 
                 return(
-                    <div className="row justify-content-center w-100">
+                    <div className="d-flex justify-content-center">
                         <div className="alert alert-light border border-danger" role="alert">
                             <h4 className="p-2 m-0 text-danger">¡Por favor, inicie sesión en MetaMask para poder continuar!</h4>
                         </div>
@@ -48,7 +48,7 @@ function Bienvenida(props) {
     return(
         <Fragment>
             <div className="jumbotron jumbotron-fluid border-bottom">
-            <div className="container">
+                <div className="container">
                     <h1 className="display-4">¡Bienvenido a DronChain!</h1>
                     <p className="lead">
                         Sistema de fumigación con drones basado en la blockchain de Alastria.
