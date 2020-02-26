@@ -67,6 +67,7 @@ function ListadoParcelas(props) {
         drones.map(dron => {
             contratosPendientes(dronChain, dron.id)
             .then(contratos => {
+                console.log('contratos',contratos)
                 setPendientes([
                     ...pendientes,
                     {
@@ -78,11 +79,19 @@ function ListadoParcelas(props) {
         });
     }
 
-    useEffect(
-        () => {
-            parcelasPendientesFumigar();
-        }, [ parcelasEmpresa ]
-    )
+    const parcelaContratada = parcela => {
+        dronesDisponibles(parcela).map(dron => {
+            contratosPendientes(dronChain, dron.id)
+            .then(contratos => {
+                if (contratos.includes(parcela.id)) {
+                    console.log('DENTRO TRUE',parcela.id)
+                    return true;  
+                }
+            });
+        });
+        console.log('FUERA TRUE',parcela.id)
+        return false;      
+    }
 
     if (parcelasEmpresa.length === 0) return null;
 
@@ -114,51 +123,44 @@ function ListadoParcelas(props) {
                                     <p className="mb-0 text-danger font-weight-bold">No existen drones adecuados</p>
                                 :     
                                     (
-                                        <div className="form-row">
-                                            <div className="col-auto">
-                                                <select
-                                                    id={ parcela.id }
-                                                    className="form-control form-control-sm"
-                                                    value={dron.parcelaId === parcela.id ? dron.dronId : ''}
-                                                    onChange={ e => setDron({parcelaId: parcela.id, dronId: e.target.value}) }
-                                                >
-                                                    <option value="">-- Seleccione un dron --</option>
-                                                    {   
-                                                        dronesDisponibles(parcela).map(dron => {   
-                                                            console.log('dronId:',dron.id)  
-                                                            console.log(pendientes)                                                       
-                                                            const pendiente = pendientes.filter(pendiente => 
-                                                                pendiente.dronId === dron.id
-                                                            );
-                                                            console.log('pendiente', pendiente)
-                                                            console.log('pendiente typeof', typeof pendiente['parcelasId'])
-                                                            //if (pendiente.parcelasId.length !== 0) {
-                                                            /*    pendiente.parcelasId.map(parcelaId => {
-                                                                    if (Number(parcelaId) !== Number(parcela.id)) {
-                                                                        return (
-                                                                            <option
-                                                                                key={ dron.id }
-                                                                                value={ dron.id }
-                                                                            >
-                                                                                { `Dron ${dron.id} -- Coste: ${dron.coste} DRK` }
-                                                                            </option>
-                                                                        )
-                                                                    }
-                                                                }) */
-                                                            //}
-                                                        })
-                                                    }
-                                                </select> 
-                                            </div>
-                                            <div className="col-auto">
-                                                <button
-                                                    className="btn btn-secondary btn-sm"
-                                                    onClick={ () => contratarDron(parcela.id, document.getElementById(parcela.id).value) }
-                                                >
-                                                    Contratar
-                                                </button>                                         
-                                            </div>                                                                       
-                                        </div>
+                                        parcelaContratada(parcela)
+                                        ?
+                                            <p className="mb-0 text-danger font-weight-bold">A la espera de ser fumigada</p>
+                                        :
+                                            (
+                                                <div className="form-row">
+                                                    <div className="col-auto">
+                                                        <select
+                                                            id={ parcela.id }
+                                                            className="form-control form-control-sm"
+                                                            value={dron.parcelaId === parcela.id ? dron.dronId : ''}
+                                                            onChange={ e => setDron({parcelaId: parcela.id, dronId: e.target.value}) }
+                                                        >
+                                                            <option value="">-- Seleccione un dron --</option>
+                                                            {   
+                                                                dronesDisponibles(parcela).map(dron => {                                                            
+                                                                    return (
+                                                                        <option
+                                                                            key={ dron.id }
+                                                                            value={ dron.id }
+                                                                        >
+                                                                            { `Dron ${dron.id} -- Coste: ${dron.coste} DRK` }
+                                                                        </option>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </select> 
+                                                    </div>
+                                                    <div className="col-auto">
+                                                        <button
+                                                            className="btn btn-secondary btn-sm"
+                                                            onClick={ () => contratarDron(parcela.id, document.getElementById(parcela.id).value) }
+                                                        >
+                                                            Contratar
+                                                        </button>                                         
+                                                    </div>                                                                       
+                                                </div>
+                                            )
                                     )                       
                             }
                         </td>
