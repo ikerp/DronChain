@@ -8,7 +8,6 @@ function BienvenidaEmpresa({ cuenta, dronChain }) {
     
     useEffect(
         () => {
-            console.log('BIENVENIDA EMPRESAAAAAAAAAAA')
             const obtenerDatosEmpresa = async () => {
                 if (await dronChain.isEmpresa(cuenta)) {
                     const result = await dronChain.getDatosEmpresa(cuenta);

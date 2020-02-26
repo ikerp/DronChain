@@ -12,7 +12,6 @@ function PanelEmpresa(props) {
        
     useEffect(
         () => {
-            console.log('PANEL EMPRESAAAAAAAAAAAAAAAA')
 
             const obtenerParcelasEmpresa = () => {
                 const result = parcelas.filter(parcela => parcela.empresa.toLowerCase() === cuenta);

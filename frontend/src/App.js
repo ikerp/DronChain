@@ -247,12 +247,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    console.log("APPPPPPPPPPPPPPPPPPPP");
-    console.log(
-      "Object.keys(dronChain).length:",
-      Object.keys(dronChain).length
-    );    
-    console.log("CUENTA APP:", cuenta);
     const comprobarUsuario = async () => {
       if (Object.keys(empresas).length !== 0 && owner !== undefined) {
         if (cuenta === owner) {

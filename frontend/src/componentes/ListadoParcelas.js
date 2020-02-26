@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Swal from 'sweetalert2';
 
 import { PESTICIDAS } from '../utils/config';
+import contratosPendientes from '../utils/contratosPendientes';
 
 function ListadoParcelas(props) {
 
@@ -12,6 +13,7 @@ function ListadoParcelas(props) {
         parcelaId: 0,
         dronId: 0
     });
+    const [ pendientes, setPendientes ] = useState([]);
 
     const contratarDron = async (parcelaId, dronId) => {
         let error = false;
@@ -34,14 +36,6 @@ function ListadoParcelas(props) {
                     console.error('No se ha podido contratar el Dron')
                 }                
             }
-            /*if (!error) {
-                try {
-                    await dronChain.asignarDron(Number(dronId), Number(parcelaId), { from: cuenta });               
-                } catch (err) {
-                    error = true;
-                    console.error('No se ha podido asignar el Dron')
-                }                
-            }*/
             if (!error) {
                 Swal.fire({
                     icon: 'success',
@@ -59,9 +53,8 @@ function ListadoParcelas(props) {
             }          
         }
         setDron('');
-    } 
-    console.log('LISTADO PARCELAAAAAAAAAAAAAA')
-    
+    }
+
     const dronesDisponibles = parcela => {
         return drones.filter(dron => 
             (Number(dron.alturaVueloMinima) >= Number(parcela.alturaVueloMinima))
@@ -69,6 +62,27 @@ function ListadoParcelas(props) {
             && dron.pesticidas.includes(parcela.pesticida)
         )
     }
+
+    const parcelasPendientesFumigar = () => {
+        drones.map(dron => {
+            contratosPendientes(dronChain, dron.id)
+            .then(contratos => {
+                setPendientes([
+                    ...pendientes,
+                    {
+                        dronId: dron.id,
+                        parcelasId: contratos
+                    }
+                ])
+            });
+        });
+    }
+
+    useEffect(
+        () => {
+            parcelasPendientesFumigar();
+        }, [ parcelasEmpresa ]
+    )
 
     if (parcelasEmpresa.length === 0) return null;
 
@@ -109,15 +123,30 @@ function ListadoParcelas(props) {
                                                     onChange={ e => setDron({parcelaId: parcela.id, dronId: e.target.value}) }
                                                 >
                                                     <option value="">-- Seleccione un dron --</option>
-                                                    {                                            
-                                                        dronesDisponibles(parcela).map(dron => 
-                                                            <option
-                                                                key={ dron.id }
-                                                                value={ dron.id }
-                                                            >
-                                                                { `Dron ${dron.id} -- Coste: ${dron.coste} DRK` }
-                                                            </option>
-                                                        )
+                                                    {   
+                                                        dronesDisponibles(parcela).map(dron => {   
+                                                            console.log('dronId:',dron.id)  
+                                                            console.log(pendientes)                                                       
+                                                            const pendiente = pendientes.filter(pendiente => 
+                                                                pendiente.dronId === dron.id
+                                                            );
+                                                            console.log('pendiente', pendiente)
+                                                            console.log('pendiente typeof', typeof pendiente['parcelasId'])
+                                                            //if (pendiente.parcelasId.length !== 0) {
+                                                            /*    pendiente.parcelasId.map(parcelaId => {
+                                                                    if (Number(parcelaId) !== Number(parcela.id)) {
+                                                                        return (
+                                                                            <option
+                                                                                key={ dron.id }
+                                                                                value={ dron.id }
+                                                                            >
+                                                                                { `Dron ${dron.id} -- Coste: ${dron.coste} DRK` }
+                                                                            </option>
+                                                                        )
+                                                                    }
+                                                                }) */
+                                                            //}
+                                                        })
                                                     }
                                                 </select> 
                                             </div>

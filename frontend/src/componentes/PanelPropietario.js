@@ -35,6 +35,7 @@ function PanelPropietario(props) {
                         <ListadoDrones
                             drones={drones}
                             dronChain={dronChain}
+                            cuenta={cuenta}
                         />
                     </div>
                 </div> 

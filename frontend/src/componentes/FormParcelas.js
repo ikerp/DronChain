@@ -10,7 +10,7 @@ function FormParcelas({cuenta, dronChain}) {
     const [ errorAlturaMinima, setErrorAlturaMinima ] = useState(false);
     const [ errorAlturaMaxima, setErrorAlturaMaxima ] = useState(false);
     const [ errorPesticida, setErrorPesticida ] = useState(false);
-    console.log('FORM PARCELAAAAAAAAAAAAAAAA')
+
     const validarFormulario = () => {
 
         let error = false;
