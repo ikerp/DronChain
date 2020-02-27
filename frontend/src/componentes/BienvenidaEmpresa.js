@@ -16,7 +16,8 @@ function BienvenidaEmpresa({ cuenta, dronChain }) {
                 }
             }
             
-            obtenerDatosEmpresa();
+            if (cuenta !== undefined)
+                obtenerDatosEmpresa();
         }, [ cuenta ]
     )
 
