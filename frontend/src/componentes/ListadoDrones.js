@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 
 import { PESTICIDAS } from '../utils/config';
-import contratosPendientes from '../utils/contratosPendientes';
 
 function ListadoDrones(props) {
 
@@ -12,36 +11,82 @@ function ListadoDrones(props) {
     const [ parcela, setParcela ] = useState({
         parcelaId: 0,
         dronId: 0
-    });    
+    });
+
+    const [ contratosPendientes, setContratosPendientes ] = useState({});
+    const [ cargando, setCargando ] = useState(true);
    
     const asignarDron = async (parcelaId, dronId) => {
         let error = false;
 
-        try {
-            await dronChain.asignarDron(Number(dronId), Number(parcelaId), { from: cuenta });               
-        } catch (err) {
-            error = true;
-            console.error('No se ha podido asignar el Dron')
-        }                
+        if (parcelaId !== '') {
+            try {
+                await dronChain.asignarDron(Number(dronId), Number(parcelaId), { from: cuenta });               
+            } catch (err) {
+                error = true;
+                console.error('No se ha podido asignar el Dron')
+            }                
 
-        if (!error) {
-            Swal.fire({
-                icon: 'success',
-                title: `¡Parcela ${parcelaId} fumigada por dron ${dronId}!`,
-                text: 'Gracias por utilizar nuestros servicios',                
-                confirmButtonColor: '#8E8C84'
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: '¡Proceso detenido!',
-                text: 'La parcela no ha podido ser fumigada',                
-                confirmButtonColor: '#8E8C84'
-            });                
-        } 
+            if (!error) {
+                obtenerContratosPendientes();
+                Swal.fire({
+                    icon: 'success',
+                    title: `¡Parcela ${parcelaId} fumigada por dron ${dronId}!`,
+                    text: 'Gracias por utilizar nuestros servicios',                
+                    confirmButtonColor: '#8E8C84'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: '¡Proceso detenido!',
+                    text: 'La parcela no ha podido ser fumigada',                
+                    confirmButtonColor: '#8E8C84'
+                });                
+            } 
+            setParcela('');
+        }
     }
 
-    if (drones.length === 0) return null;
+    const obtenerContratosPendientes = () => {
+        setCargando(true);
+        let contratosPorDron = {};
+        drones.forEach(dron => {           
+            contratosPorDron[dron.id] = [];            
+        });
+
+        dronChain.getPastEvents('DronContratado', {
+            fromBlock:0,
+            toBlock:'latest'            
+        })
+        .then(eventos => {
+            eventos.forEach(evento => {
+                contratosPorDron[evento.returnValues.dronId].push(evento.returnValues.parcelaId);
+            });
+
+            dronChain.getPastEvents('ParcelaFumigada', {
+                fromBlock:0,
+                toBlock:'latest'            
+            })
+            .then(eventos => {
+                eventos.forEach(evento => {
+                    let index = contratosPorDron[evento.returnValues.dronId].indexOf(evento.returnValues.parcelaId);
+                    if (index !== -1) {
+                        contratosPorDron[evento.returnValues.dronId].splice(index, 1);
+                    }                        
+                });
+                setContratosPendientes(contratosPorDron);
+                setCargando(false);
+            })            
+        })
+    };    
+
+    useEffect(
+        ()=> {            
+            obtenerContratosPendientes();            
+        }, [ drones ]
+    );
+
+    if (drones.length === 0 || cargando) return null;
 
     return(
         <table className="table table-hover table-sm">
@@ -55,7 +100,7 @@ function ListadoDrones(props) {
                     <th scope="col">Altura Vuelo Máxima</th>
                     <th scope="col">Pesticidas</th>
                     <th scope="col">Coste</th>
-                    <th scope="col">Parcelas Pendientes</th>
+                    <th scope="col">Contratos Pendientes</th>
                 </tr>
             </thead>
             <tbody>
@@ -70,9 +115,9 @@ function ListadoDrones(props) {
                         <td>{dron.coste}</td>
                         <td>
                             {
-                                contratosPendientes(dronChain, dron.id).length === 0
+                                contratosPendientes[dron.id].length === 0
                                 ?
-                                    <p className="mb-0 text-danger font-weight-bold">No hay parcelas sin fumigar</p>
+                                    <p className="mb-0 text-danger font-weight-bold">No hay parcelas para fumigar</p>
                                 :     
                                     (
                                         <div className="form-row">
@@ -80,17 +125,17 @@ function ListadoDrones(props) {
                                                 <select
                                                     id={ dron.id }
                                                     className="form-control form-control-sm"
-                                                    value={parcela.dronId === dron.id ? parcela.dronId : ''}
+                                                    value={parcela.dronId === dron.id ? parcela.parcelaId : ''}
                                                     onChange={ e => setParcela({parcelaId: e.target.value, dronId: dron.id}) }
                                                 >
                                                     <option value="">-- Seleccione una parcela --</option>
-                                                    {                                            
-                                                        contratosPendientes(dronChain, dron.id).map(parcela => 
+                                                    {
+                                                        contratosPendientes[dron.id].map(parcela =>
                                                             <option
-                                                                key={ parcela.id }
-                                                                value={ parcela.id }
+                                                                key={ parcela }
+                                                                value={ parcela }
                                                             >
-                                                                { `Parcela ${parcela.id}` }
+                                                                { `Parcela ${parcela}` }
                                                             </option>
                                                         )
                                                     }
@@ -105,7 +150,7 @@ function ListadoDrones(props) {
                                                 </button>                                         
                                             </div>                                                                       
                                         </div>
-                                    )                       
+                                    )
                             }                            
                         </td>
                     </tr>                    
