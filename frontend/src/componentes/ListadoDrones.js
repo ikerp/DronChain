@@ -78,11 +78,11 @@ function ListadoDrones(props) {
                 setCargando(false);
             })            
         })
-    };    
+    };   
 
     useEffect(
-        ()=> {            
-            obtenerContratosPendientes();            
+        ()=> {        
+            obtenerContratosPendientes();      
         }, [ drones ]
     );
 
@@ -115,7 +115,7 @@ function ListadoDrones(props) {
                         <td>{dron.coste}</td>
                         <td>
                             {
-                                contratosPendientes[dron.id].length === 0
+                                (contratosPendientes[dron.id] === undefined || contratosPendientes[dron.id].length === 0)
                                 ?
                                     <p className="mb-0 text-danger font-weight-bold">No hay parcelas para fumigar</p>
                                 :     
