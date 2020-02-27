@@ -90,6 +90,12 @@ function App() {
         );
         setDroken(droken);
 
+        // Inicializar la cuenta del usuario y obtener propietario web
+        const cuenta = (await web3.eth.getAccounts())[0];
+        setCuenta(cuenta.toLowerCase()); // Metamask trabaja en minusculas
+        const owner = await dronChain.owner();
+        setOwner(owner.toLowerCase());        
+
         // LISTENERS DE EVENTOS
         // Registrarse mediante Metamask al evento que se ejecuta al actualizarse la cuenta
         // "publicConfigStore" permite registrarse a diferentes eventos 
@@ -213,13 +219,7 @@ function App() {
             } else {
                 console.error("ParcelaFumigada event: ", error);
             }                
-        });        
-
-        // Inicializar la cuenta del usuario y obtener propietario web
-        const cuenta = (await web3.eth.getAccounts())[0];
-        setCuenta(cuenta.toLowerCase()); // Metamask trabaja en minusculas
-        const owner = await dronChain.owner();
-        setOwner(owner.toLowerCase());
+        });
       } catch (error) {
         if (web3 === undefined) {
           console.log(web3);
