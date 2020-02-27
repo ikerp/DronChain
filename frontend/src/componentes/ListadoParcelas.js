@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 
 import { PESTICIDAS } from '../utils/config';
-import contratosPendientes from '../utils/contratosPendientes';
+import parcelaPendienteFumigar from '../utils/parcelaPendienteFumigar';
 
 function ListadoParcelas(props) {
 
@@ -13,46 +13,57 @@ function ListadoParcelas(props) {
         parcelaId: 0,
         dronId: 0
     });
-    const [ pendientes, setPendientes ] = useState([]);
+
+    //const [ pendientes, setPendientes ] = useState([]);    
 
     const contratarDron = async (parcelaId, dronId) => {
         let error = false;
 
         if (dronId !== '') {
-            const dron = await dronChain.getDron(dronId);
-            try {
-                await droken.increaseAllowance(dronChain.address, Number(dron.coste), { from: cuenta });
-            } catch (err) {
-                error = true;
-                console.error('No se ha concedido el gasto para contratar el Dron')
-            }
-            if (!error) {
-                error = false;
-                try {
-                    await dronChain.contratarDron(Number(dronId), Number(parcelaId), { from: cuenta });
-                } catch (err) {
-                    error = true;
-                    await droken.decreaseAllowance(dronChain.address, Number(dron.coste), { from: cuenta });
-                    console.error('No se ha podido contratar el Dron')
-                }                
-            }
-            if (!error) {
-                Swal.fire({
-                    icon: 'success',
-                    title: `¡Dron ${dronId} contratado por ${dron.coste} DRK!`,
-                    text: 'Gracias por utilizar nuestros servicios',                
-                    confirmButtonColor: '#8E8C84'
-                });
-            } else {
+            const pendiente = await parcelaPendienteFumigar(dronChain, parcelaId);
+            if (pendiente) {
                 Swal.fire({
                     icon: 'error',
-                    title: '¡Proceso detenido!',
-                    text: 'El dron no ha podido ser contratado',                
+                    title: '¡Contrato desestimado!',
+                    text: 'La parcela está pendiente de ser fumigada',                
                     confirmButtonColor: '#8E8C84'
-                });                
-            }          
+                }); 
+            } else {
+                const dron = await dronChain.getDron(dronId);
+                try {
+                    await droken.increaseAllowance(dronChain.address, Number(dron.coste), { from: cuenta });
+                } catch (err) {
+                    error = true;
+                    console.error('No se ha concedido el gasto para contratar el Dron')
+                }
+                if (!error) {
+                    error = false;
+                    try {
+                        await dronChain.contratarDron(Number(dronId), Number(parcelaId), { from: cuenta });
+                    } catch (err) {
+                        error = true;
+                        await droken.decreaseAllowance(dronChain.address, Number(dron.coste), { from: cuenta });
+                        console.error('No se ha podido contratar el Dron')
+                    }                
+                }
+                if (!error) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: `¡Dron ${dronId} contratado por ${dron.coste} DRK!`,
+                        text: 'Gracias por utilizar nuestros servicios',                
+                        confirmButtonColor: '#8E8C84'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '¡Proceso detenido!',
+                        text: 'El dron no ha podido ser contratado',                
+                        confirmButtonColor: '#8E8C84'
+                    });                
+                }   
+            }
+            setDron('');
         }
-        setDron('');
     }
 
     const dronesDisponibles = parcela => {
@@ -62,37 +73,36 @@ function ListadoParcelas(props) {
             && dron.pesticidas.includes(parcela.pesticida)
         )
     }
+/*
+    const parcelaPendienteFumigar = async parcela => {
+        const pendiente = await parcelaPendienteFumigar(dronChain, parcela.id);
+        console.log(`parcela ${parcela.id} pendiente fumigar: ${pendiente}`)
+        return pendiente;
+        console.log(`pendientes: ${pendientes}`)
+        const parc = pendientes.find(pend => pend.parcelaId === parcela.id);
+        console.log(`parcela ${parc.id}`)
+        console.log(`parcela pendientes ${parc.pendiente}`)
+    }
 
-    const parcelasPendientesFumigar = () => {
-        drones.map(dron => {
-            contratosPendientes(dronChain, dron.id)
-            .then(contratos => {
-                console.log('contratos',contratos)
+    useEffect(
+        () => {
+            parcelasEmpresa.map(async parcela => {
+                const pendienteFumigar = await parcelaPendienteFumigar(dronChain, parcela.id);
+                let copiaPendientes = [...pendientes].filter(parcela => parcela.parcelaId !== parcela.id)
+
                 setPendientes([
-                    ...pendientes,
+                    ...copiaPendientes,
                     {
-                        dronId: dron.id,
-                        parcelasId: contratos
+                        parcelaId: parcela.id,
+                        pendiente: pendienteFumigar
                     }
                 ])
-            });
-        });
-    }
+            })
+            //parcelasEmpresa.map(parcela => console.log(`parcela ${parcela.id}`))
 
-    const parcelaContratada = parcela => {
-        dronesDisponibles(parcela).map(dron => {
-            contratosPendientes(dronChain, dron.id)
-            .then(contratos => {
-                if (contratos.includes(parcela.id)) {
-                    console.log('DENTRO TRUE',parcela.id)
-                    return true;  
-                }
-            });
-        });
-        console.log('FUERA TRUE',parcela.id)
-        return false;      
-    }
-
+        }, [ parcelasEmpresa ]
+    )
+*/
     if (parcelasEmpresa.length === 0) return null;
 
     return(
@@ -122,12 +132,14 @@ function ListadoParcelas(props) {
                                 ?
                                     <p className="mb-0 text-danger font-weight-bold">No existen drones adecuados</p>
                                 :     
-                                    (
-                                        parcelaContratada(parcela)
+                                    (/*
+                                        //console.log(parcelaPendienteFumigar(parcela))
+                                        //pendientes.filter(pendiente => pendiente.parcelaId === parcela.id).length !== 0
+                                        console.log(pendientes.filter(pendiente => pendiente.parcelaId === parcela.id)[0].pendiente)
                                         ?
                                             <p className="mb-0 text-danger font-weight-bold">A la espera de ser fumigada</p>
                                         :
-                                            (
+                                            (*/
                                                 <div className="form-row">
                                                     <div className="col-auto">
                                                         <select
@@ -160,7 +172,7 @@ function ListadoParcelas(props) {
                                                         </button>                                         
                                                     </div>                                                                       
                                                 </div>
-                                            )
+                                            //)
                                     )                       
                             }
                         </td>
