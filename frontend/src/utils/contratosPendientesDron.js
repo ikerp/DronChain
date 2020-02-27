@@ -1,4 +1,4 @@
-const contratosPendientes = (dronChain, dronId) => 
+const contratosPendientesDron = (dronChain, dronId) => 
     new Promise((resolve, reject) => {
 
         let contratosPendientes = [];
@@ -33,9 +33,9 @@ const contratosPendientes = (dronChain, dronId) =>
                 })  
             })
         } catch (error) {
-            console.error('ERROR en Promise contratosPendientes');
+            console.error('ERROR en Promise contratosPendientesDron');
             reject(); 
         }
     });
 
-export default contratosPendientes;
+export default contratosPendientesDron;
