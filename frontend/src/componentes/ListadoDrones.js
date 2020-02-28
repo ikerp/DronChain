@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
+import Spinner from './Spinner';
+
 import Swal from 'sweetalert2';
 
 import { PESTICIDAS } from '../utils/config';
@@ -48,36 +50,41 @@ function ListadoDrones(props) {
     }
 
     const obtenerContratosPendientes = () => {
-        setCargando(true);
-        let contratosPorDron = {};
-        drones.forEach(dron => {           
-            contratosPorDron[dron.id] = [];            
-        });
-
-        dronChain.getPastEvents('DronContratado', {
-            fromBlock:0,
-            toBlock:'latest'            
-        })
-        .then(eventos => {
-            eventos.forEach(evento => {
-                contratosPorDron[evento.returnValues.dronId].push(evento.returnValues.parcelaId);
+        if (drones.length === 0) {
+            setContratosPendientes({});
+            setCargando(false);
+        } else {        
+            setCargando(true);
+            let contratosPorDron = {};
+            drones.forEach(dron => {           
+                contratosPorDron[dron.id] = [];            
             });
 
-            dronChain.getPastEvents('ParcelaFumigada', {
+            dronChain.getPastEvents('DronContratado', {
                 fromBlock:0,
                 toBlock:'latest'            
             })
             .then(eventos => {
                 eventos.forEach(evento => {
-                    let index = contratosPorDron[evento.returnValues.dronId].indexOf(evento.returnValues.parcelaId);
-                    if (index !== -1) {
-                        contratosPorDron[evento.returnValues.dronId].splice(index, 1);
-                    }                        
+                    contratosPorDron[evento.returnValues.dronId].push(evento.returnValues.parcelaId);
                 });
-                setContratosPendientes(contratosPorDron);
-                setCargando(false);
-            })            
-        })
+                
+                dronChain.getPastEvents('ParcelaFumigada', {
+                    fromBlock:0,
+                    toBlock:'latest'            
+                })
+                .then(eventos => {
+                    eventos.forEach(evento => {
+                        let index = contratosPorDron[evento.returnValues.dronId].indexOf(evento.returnValues.parcelaId);
+                        if (index !== -1) {
+                            contratosPorDron[evento.returnValues.dronId].splice(index, 1);
+                        }                        
+                    });
+                    setContratosPendientes(contratosPorDron);
+                    setCargando(false);
+                })            
+            })
+        }
     };   
 
     useEffect(
@@ -86,9 +93,14 @@ function ListadoDrones(props) {
         }, [ drones ]
     );
 
-    if (drones.length === 0 || cargando) return null;
+    if (drones.length === 0) return null;
 
     return(
+        cargando
+        ?
+        <Spinner />
+        :
+        (
         <table className="table table-hover table-sm">
             <thead>
                 <tr className="bg-secondary text-white text-uppercase">
@@ -157,6 +169,7 @@ function ListadoDrones(props) {
                 )}
             </tbody>
         </table>
+        )
     )
 }
 

@@ -114,22 +114,22 @@ function App() {
           fromBlock:0,
           toBlock:'latest'
         }, (error, event) => {
-            if (!error) {
-              console.log('------- EVENTO DRON REGISTRADO -------');
-              setDrones(drones => [
-                ...drones,
-                {
-                  'id': event.returnValues.id,
-                  'empresa': event.returnValues.empresa,
-                  'alturaVueloMinima': event.returnValues.alturaVueloMinima,
-                  'alturaVueloMaxima': event.returnValues.alturaVueloMaxima,
-                  'pesticidas': event.returnValues.pesticidas,
-                  'coste': event.returnValues.coste
-                }
-              ]);
-            } else {
-                console.error("DronRegistrado event: ", error);
-            }                
+          if (!error) {
+            console.log('------- EVENTO DRON REGISTRADO -------');
+            setDrones(drones => [
+              ...drones,
+              {
+                'id': event.returnValues.id,
+                'empresa': event.returnValues.empresa,
+                'alturaVueloMinima': event.returnValues.alturaVueloMinima,
+                'alturaVueloMaxima': event.returnValues.alturaVueloMaxima,
+                'pesticidas': event.returnValues.pesticidas,
+                'coste': event.returnValues.coste
+              }
+            ]);
+          } else {
+            console.error("DronRegistrado event: ", error);
+          }                
         });
         // Gestionar el evento de parcela registrada
         // event ParcelaRegistrada(id, empresa, alturaVueloMinima, alturaVueloMaxima, pesticidas, coste)
@@ -137,21 +137,21 @@ function App() {
           fromBlock:0,
           toBlock:'latest'
         }, (error, event) => {
-            if (!error) {
-              console.log('------- EVENTO PARCELA REGISTRADA -------');
-              setParcelas(parcelas => [
-                ...parcelas,
-                {
-                  'id': event.returnValues.id,
-                  'empresa': event.returnValues.empresa,
-                  'alturaVueloMinima': event.returnValues.alturaVueloMinima,
-                  'alturaVueloMaxima': event.returnValues.alturaVueloMaxima,
-                  'pesticida': event.returnValues.pesticida
-                }
-              ]);
-            } else {
-                console.error("ParcelaRegistrada event: ", error);
-            }                
+          if (!error) {
+            console.log('------- EVENTO PARCELA REGISTRADA -------');
+            setParcelas(parcelas => [
+              ...parcelas,
+              {
+                'id': event.returnValues.id,
+                'empresa': event.returnValues.empresa,
+                'alturaVueloMinima': event.returnValues.alturaVueloMinima,
+                'alturaVueloMaxima': event.returnValues.alturaVueloMaxima,
+                'pesticida': event.returnValues.pesticida
+              }
+            ]);
+          } else {
+            console.error("ParcelaRegistrada event: ", error);
+          }                
         }); 
         // Gestionar el evento de empresa registrada
         // event EmpresaRegistrada(_cuenta, _nombre, _cif)
@@ -159,22 +159,20 @@ function App() {
           fromBlock:'latest',
           toBlock:'latest'
         }, async (error, event) => {
-
-          console.log('EmpresaRegistrada:',event.blockNumber)
-          const latest = await web3.eth.getBlockNumber();
-          console.log(latest)
-
-            if (!error) {
-              console.log('------- EVENTO EMPRESA REGISTRADA -------');
-              if (cuenta === owner) {
-                Toast.fire({
-                  icon: 'info',
-                  title: '¡Se ha registrado una nueva empresa!'
-                })                
-              }
-            } else {
-                console.error("EmpresaRegistrada event: ", error);
-            }                
+          if (!error) {
+            console.log('------- EVENTO EMPRESA REGISTRADA -------');
+            const cuentaActiva = (await web3.eth.getAccounts())[0]
+            console.log('cuenta:',cuentaActiva)
+            console.log('owner:',owner)
+            if (cuentaActiva === owner) {
+              Toast.fire({
+                icon: 'info',
+                title: '¡Se ha registrado una nueva empresa!'
+              })                
+            }
+          } else {
+            console.error("EmpresaRegistrada event: ", error);
+          }                
         });          
         // Gestionar el evento de transferencia de Drokens realizada
         // emit Transfer(sender, recipient, amount)
@@ -182,13 +180,13 @@ function App() {
           fromBlock:'latest',
           toBlock:'latest'
         }, async (error, event) => {
-            if (!error) {
-              console.log('------- EVENTO TRANSFERENCIA REALIZADA -------');
-              const saldo = await dronChain.getDrokens(cuenta);
-              setSaldo(Number(saldo));                
-            } else {
-                console.error("Transfer event: ", error);
-            }                
+          if (!error) {
+            console.log('------- EVENTO TRANSFERENCIA REALIZADA -------');
+            const saldo = await dronChain.getDrokens(cuenta);
+            setSaldo(Number(saldo));                
+          } else {
+            console.error("Transfer event: ", error);
+          }                
         });     
         // Gestionar el evento de Dron contratado
         // emit DronContratado(dronId, parcelaId)
@@ -196,17 +194,20 @@ function App() {
           fromBlock:'latest',
           toBlock:'latest'
         }, async (error, event) => {
-            if (!error) {
-              console.log('------- EVENTO DRON CONTRATADO -------'); 
-              if (cuenta === owner) { // && event.block === 'latest'---------------------------------------------------------------
-                Toast.fire({
-                  icon: 'info',
-                  title: '¡Se ha contratado un Dron!'
-                })                
-              }                            
-            } else {
-                console.error("DronContratado event: ", error);
-            }                
+          if (!error) {
+            console.log('------- EVENTO DRON CONTRATADO -------'); 
+            const cuentaActiva = (await web3.eth.getAccounts())[0]
+            console.log('cuenta:',cuentaActiva)
+            console.log('owner:',owner)
+            if (cuentaActiva === owner) {
+              Toast.fire({
+                icon: 'info',
+                title: `¡Se ha contratado el Dron ${event.returnValues.dronId}!`
+              })                
+            }                            
+          } else {
+            console.error("DronContratado event: ", error);
+          }                
         });
         // Gestionar el evento de Parcela fumigada
         // emit ParcelaFumigada(parcelaId, dronId)
@@ -214,11 +215,11 @@ function App() {
           fromBlock:'latest',
           toBlock:'latest'
         }, async (error, event) => {
-            if (!error) {
-              console.log('------- EVENTO PARCELA FUMIGADA -------');               
-            } else {
-                console.error("ParcelaFumigada event: ", error);
-            }                
+          if (!error) {
+            console.log('------- EVENTO PARCELA FUMIGADA -------');                           
+          } else {
+            console.error("ParcelaFumigada event: ", error);
+          }                
         });
       } catch (error) {
         if (web3 === undefined) {

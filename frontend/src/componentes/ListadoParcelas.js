@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
+import Spinner from './Spinner';
+
 import Swal from 'sweetalert2';
 
 import { PESTICIDAS } from '../utils/config';
-import parcelaPendienteFumigar from '../utils/parcelaPendienteFumigar';
+//import parcelaPendienteFumigar from '../utils/parcelaPendienteFumigar';
 
 function ListadoParcelas(props) {
 
@@ -14,13 +16,15 @@ function ListadoParcelas(props) {
         dronId: 0
     });
 
-    //const [ pendientes, setPendientes ] = useState([]);    
+    const [ fumigacionPendiente, setFumigacionPendiente ] = useState({});
+    const [ cargando, setCargando ] = useState(true);
+    const [ recargar, setRecargar ] = useState(true);
 
     const contratarDron = async (parcelaId, dronId) => {
         let error = false;
 
         if (dronId !== '') {
-            const pendiente = await parcelaPendienteFumigar(dronChain, parcelaId);
+            /*const pendiente = await parcelaPendienteFumigar(dronChain, parcelaId);
             if (pendiente) {
                 Swal.fire({
                     icon: 'error',
@@ -28,7 +32,7 @@ function ListadoParcelas(props) {
                     text: 'La parcela está pendiente de ser fumigada',                
                     confirmButtonColor: '#8E8C84'
                 }); 
-            } else {
+            } else {*/
                 const dron = await dronChain.getDron(dronId);
                 try {
                     await droken.increaseAllowance(dronChain.address, Number(dron.coste), { from: cuenta });
@@ -47,6 +51,7 @@ function ListadoParcelas(props) {
                     }                
                 }
                 if (!error) {
+                    setRecargar(!recargar);
                     Swal.fire({
                         icon: 'success',
                         title: `¡Dron ${dronId} contratado por ${dron.coste} DRK!`,
@@ -60,9 +65,9 @@ function ListadoParcelas(props) {
                         text: 'El dron no ha podido ser contratado',                
                         confirmButtonColor: '#8E8C84'
                     });                
-                }   
-            }
-            setDron('');
+                }
+            //}   
+            setDron('');            
         }
     }
 
@@ -73,39 +78,67 @@ function ListadoParcelas(props) {
             && dron.pesticidas.includes(parcela.pesticida)
         )
     }
-/*
-    const parcelaPendienteFumigar = async parcela => {
-        const pendiente = await parcelaPendienteFumigar(dronChain, parcela.id);
-        console.log(`parcela ${parcela.id} pendiente fumigar: ${pendiente}`)
-        return pendiente;
-        console.log(`pendientes: ${pendientes}`)
-        const parc = pendientes.find(pend => pend.parcelaId === parcela.id);
-        console.log(`parcela ${parc.id}`)
-        console.log(`parcela pendientes ${parc.pendiente}`)
-    }
+
+    const obtenerParcelasPendienteFumigar = () => {
+        if (parcelasEmpresa.length === 0) {
+            setFumigacionPendiente({});
+            setCargando(false);
+        } else {
+            setCargando(true);
+            let contratosPorParcela = {};
+            parcelasEmpresa.forEach(parcela => {           
+                contratosPorParcela[parcela.id] = [];            
+            });
+
+            dronChain.getPastEvents('DronContratado', {
+                fromBlock:0,
+                toBlock:'latest'            
+            })
+            .then(eventos => {
+                eventos.forEach(evento => {
+                    // Verificar que la parcela es de la empresa
+                    if (Object.keys(contratosPorParcela).includes(evento.returnValues.parcelaId))
+                        contratosPorParcela[evento.returnValues.parcelaId].push(evento.returnValues.dronId);
+                });
+            
+                dronChain.getPastEvents('ParcelaFumigada', {
+                    fromBlock:0,
+                    toBlock:'latest'            
+                })
+                .then(eventos => {
+                    eventos.forEach(evento => {
+                        // Verificar que la parcela es de la empresa
+                        if (Object.keys(contratosPorParcela).includes(evento.returnValues.parcelaId)) {
+                            let index = contratosPorParcela[evento.returnValues.parcelaId].indexOf(evento.returnValues.dronId);
+                            if (index !== -1) {
+                                contratosPorParcela[evento.returnValues.parcelaId].splice(index, 1);
+                            } 
+                        }                       
+                    });
+                    setFumigacionPendiente(contratosPorParcela);
+                    setCargando(false);
+                })
+            })
+        }
+    };    
 
     useEffect(
-        () => {
-            parcelasEmpresa.map(async parcela => {
-                const pendienteFumigar = await parcelaPendienteFumigar(dronChain, parcela.id);
-                let copiaPendientes = [...pendientes].filter(parcela => parcela.parcelaId !== parcela.id)
+        ()=> {
+            //if (recargar) {
+                obtenerParcelasPendienteFumigar();
+                //setRecargar(false);
+            //}
+        }, [ parcelasEmpresa, recargar ]
+    );
 
-                setPendientes([
-                    ...copiaPendientes,
-                    {
-                        parcelaId: parcela.id,
-                        pendiente: pendienteFumigar
-                    }
-                ])
-            })
-            //parcelasEmpresa.map(parcela => console.log(`parcela ${parcela.id}`))
-
-        }, [ parcelasEmpresa ]
-    )
-*/
     if (parcelasEmpresa.length === 0) return null;
 
     return(
+        cargando
+        ?
+        <Spinner />
+        :
+        (        
         <table className="table table-hover table-sm">
             <thead>
                 <tr className="bg-secondary text-white text-uppercase">
@@ -132,14 +165,12 @@ function ListadoParcelas(props) {
                                 ?
                                     <p className="mb-0 text-danger font-weight-bold">No existen drones adecuados</p>
                                 :     
-                                    (/*
-                                        //console.log(parcelaPendienteFumigar(parcela))
-                                        //pendientes.filter(pendiente => pendiente.parcelaId === parcela.id).length !== 0
-                                        console.log(pendientes.filter(pendiente => pendiente.parcelaId === parcela.id)[0].pendiente)
+                                    (
+                                        (fumigacionPendiente[parcela.id] === undefined || fumigacionPendiente[parcela.id].length !== 0)
                                         ?
-                                            <p className="mb-0 text-danger font-weight-bold">A la espera de ser fumigada</p>
-                                        :
-                                            (*/
+                                            <p className="mb-0 text-danger font-weight-bold">Parcela pendiente de fumigar</p>
+                                        : 
+                                            (
                                                 <div className="form-row">
                                                     <div className="col-auto">
                                                         <select
@@ -172,7 +203,7 @@ function ListadoParcelas(props) {
                                                         </button>                                         
                                                     </div>                                                                       
                                                 </div>
-                                            //)
+                                            )
                                     )                       
                             }
                         </td>
@@ -180,6 +211,7 @@ function ListadoParcelas(props) {
                 )}
             </tbody>
         </table>
+        )
     )
 }
 
