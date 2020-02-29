@@ -31,6 +31,10 @@ contract DronesERC721 is ERC721, Ownable {
         _;
     }
 
+    function isDron(uint256 dronId) public view returns (bool) {
+        return drones[dronId].id == dronId;
+    }
+
     function numeroDrones() public view returns (uint256) {
         return contador;
     }

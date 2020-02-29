@@ -40,7 +40,7 @@ contract("Droken Tests", accounts => {
 
     it("Añadidos nuevos Drokens", async () => {
         const tokensIniciales = await droken.totalSupply.call();
-        const tx = await droken.mint(1000, { from: accounts[0] });
+        const tx = await droken.mint(1000, accounts[0], { from: accounts[0] });
         const tokensFinales = await droken.totalSupply.call();
 
         // emit Transfer(sender, recipient, amount);
@@ -60,7 +60,7 @@ contract("Droken Tests", accounts => {
 
     it("Solo el owner puede añadir nuevos Drokens", async () => {
         try {
-            await droken.mint(1000, { from: accounts[1] });
+            await droken.mint(1000, accounts[0], { from: accounts[1] });
         } catch (err) {
             // Funcionamiento correcto: No deja minar Drokens
             error = err;
