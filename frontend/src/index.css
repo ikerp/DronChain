@@ -5,7 +5,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  padding-bottom: 35px;;
+  padding-bottom: 45px;;
 }
 
 code {
@@ -22,15 +22,14 @@ code {
 .btn-sm {
   padding: 0.12rem 0.5rem;
 }
-/*
-table {
-  table-layout: fixed;
+
+table thead tr.tableParcelas {
+  background-color: #cfd1c5;
 }
 
-table th, table td {
-  overflow: hidden;
+.card .card-header h5.clickable:hover {
+  cursor: pointer;
 }
-*/
 
 /* SPINNER */
 .sk-chase {
