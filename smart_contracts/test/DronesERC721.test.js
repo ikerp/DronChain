@@ -12,6 +12,8 @@ contract('DronERC721 Tests', (accounts) => {
     const _pesticidas = [1, 3, 5]
     const _coste = 3000
 
+    const address0 = "0x0000000000000000000000000000000000000000";
+
     const registrarDron = async (sender) => {
         let dronId
 
@@ -245,6 +247,28 @@ contract('DronERC721 Tests', (accounts) => {
         assert.equal(
             error,
             'El dron solicitado no existe.',
+            'El error devuelto no es correcto'
+        )
+    })
+
+    it('Solo se puede transferir un dron a una dirección válida', async () => {
+        let error
+
+        const dronId = await registrarDron(_testOwner)
+
+        try {
+            await dronesERC721.transferirDron(
+                dronId,
+                address0,
+                { from: _testOwner }
+            )
+        } catch (e) {
+            error = e.reason
+        }
+
+        assert.equal(
+            error,
+            'La address del destinatario no es valida',
             'El error devuelto no es correcto'
         )
     })

@@ -77,7 +77,7 @@ contract DronesERC721 is ERC721, Ownable {
     }
 
     function transferirDron(uint256 dronId, address to) public onlyOwner dronExiste(dronId) {
-        require(to != address(0), "La address del destinatario no es válida");
+        require(to != address(0), "La address del destinatario no es valida");
 
         ERC721.transferFrom(drones[dronId].empresa, to, dronId);
 
