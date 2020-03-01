@@ -801,7 +801,11 @@ contract("DronChain Tests", accounts => {
     } catch (e) {
       error = e.reason;
     }
-    assert.equal(error, "La empresa no existe", "El error devuelto no es correcto");
+    assert.equal(
+      error,
+      "La empresa no existe",
+      "El error devuelto no es correcto"
+    );
   });
 
   it("Acuñar drokens", async () => {
