@@ -8,10 +8,10 @@ import "./Empresas.sol";
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 
 contract DronChain is Ownable {
-    Droken drokenContract;
-    DronesERC721 dronesContract;
-    ParcelasERC721 parcelasContract;
-    Empresas empresasContract;
+    Droken private drokenContract;
+    DronesERC721 private dronesContract;
+    ParcelasERC721 private parcelasContract;
+    Empresas private empresasContract;
 
     mapping(uint256 => mapping(uint256 => bool)) private dronesContratados;
 
@@ -30,24 +30,39 @@ contract DronChain is Ownable {
         empresasContract = Empresas(empresas);
     }
 
-    function getDrokenContract() public view returns (Droken) {
-        return drokenContract;
+    modifier dronValido(uint256 dronId) {
+        require(dronesContract.isDron(dronId), "El dron no existe");
+        _;
     }
 
-    function getDronesContract() public view returns (DronesERC721) {
-        return dronesContract;
+    modifier parcelaValida(uint256 parcelaId) {
+        require(parcelasContract.isParcela(parcelaId), "La parcela no existe");
+        _;
     }
 
-    function getParcelasContract() public view returns (ParcelasERC721) {
-        return parcelasContract;
+    modifier empresaValida(address empresa) {
+        require(empresasContract.isEmpresa(empresa), "La empresa no existe");
+        _;
     }
 
-    function getEmpresasContract() public view returns (Empresas) {
-        return empresasContract;
+    function getDrokenContract() public view returns (address) {
+        return address(drokenContract);
     }
+
+    function getDronesContract() public view returns (address) {
+        return address(dronesContract);
+    }
+
+    function getParcelasContract() public view returns (address) {
+        return address(parcelasContract);
+    }
+
+    function getEmpresasContract() public view returns (address) {
+        return address(empresasContract);
+    }
+
 
     function registrarDron(
-        //address empresa,
         uint256 alturaVueloMinima,
         uint256 alturaVueloMaxima,
         uint256[] memory pesticidas,
@@ -62,18 +77,14 @@ contract DronChain is Ownable {
         );
     }
 
-    function getDron(uint256 dronId)
-        public
-        view
-        returns (
+    function getDron(uint256 dronId) public view returns (
             uint256 id,
             address empresa,
             uint256 alturaVueloMinima,
             uint256 alturaVueloMaxima,
             uint256[] memory pesticidas,
             uint256 coste
-        )
-    {
+        ) {
         (
             id,
             empresa,
@@ -106,11 +117,8 @@ contract DronChain is Ownable {
         drokenContract.transferFrom(owner(), msg.sender, cantidadTokens);
     }
 
-    function getDatosEmpresa(address _cuenta)
-        public
-        view
-        returns (string memory nombre, string memory cif)
-    {
+    function getDatosEmpresa(address _cuenta) public view
+        returns (string memory nombre, string memory cif) {
         (nombre, cif) = empresasContract.getDatosEmpresa(_cuenta);
     }
 
@@ -122,53 +130,49 @@ contract DronChain is Ownable {
         return drokenContract.balanceOf(_cuenta);
     }
 
-    function contratarDron(uint256 dronId, uint256 parcelaId) public {
+    function contratarDron(uint256 dronId, uint256 parcelaId)
+        public
+        empresaValida(msg.sender)
+        dronValido(dronId)
+        parcelaValida(parcelaId)
+    {
         require(
             !dronesContratados[dronId][parcelaId],
             "El dron seleccionado ya había sido contratado para fumigar dicha parcela"
         );
-        (, address empresaParcela, , , ) = parcelasContract.getParcela(
-            parcelaId
-        );
-        require(
-            empresaParcela == msg.sender,
-            "El usuario no es el dueño de la parcela"
-        );
+        (, address empresaParcela, , , ) = parcelasContract.getParcela(parcelaId);
+        require(empresaParcela == msg.sender,"El usuario no es el dueño de la parcela");
 
-        // registramos la contratacion del dron para fumigar esa parcela
         dronesContratados[dronId][parcelaId] = true;
 
-        // emitimos el evento DronContratado(uint256 dronId, uint256 parcelaId)
         emit DronContratado(dronId, parcelaId);
     }
 
-    function asignarDron(uint256 dronId, uint256 parcelaId) public {
+    function asignarDron(uint256 dronId, uint256 parcelaId)
+        public
+        onlyOwner
+        dronValido(dronId)
+        parcelaValida(parcelaId)
+    {
         require(
             dronesContratados[dronId][parcelaId],
             "El dron seleccionado no había sido contratado para fumigar dicha parcela"
         );
 
-        // actualizamos la contratacion del dron para fumigar dicha parcela
         dronesContratados[dronId][parcelaId] = false;
 
-        // hacemos la transferencia de droken del dueño de la parcela a la empresa que gestiona el dron
-        (, address empresaParcela, , , ) = parcelasContract.getParcela(
-            parcelaId
-        );
-        (, address empresaDron, , , , uint256 coste) = dronesContract.getDron(
-            dronId
-        );
+        (, address empresaParcela, , , ) = parcelasContract.getParcela(parcelaId);
+        (, address empresaDron, , , , uint256 coste) = dronesContract.getDron(dronId);
         drokenContract.transferFrom(empresaParcela, empresaDron, coste);
 
-        // emitimos el evento ParcelaFumigada(uint256 parcelaId, uint256 dronId)
         emit ParcelaFumigada(parcelaId, dronId);
     }
 
-    /**
-     * @dev Se lanza si es llamado por cualquier cuenta de empresa que no exista
-     */
-    modifier empresaValida(address _cuenta) {
-        require(empresasContract.isEmpresa(_cuenta), "La empresa no existe");
-        _;
+    function agregarDrokens(uint256 cantidadTokens) public empresaValida(msg.sender) {
+        drokenContract.transferFrom(owner(), msg.sender, cantidadTokens);
+    }
+
+    function mintDrokens(uint256 cantidadTokens) public onlyOwner {
+        drokenContract.mint(cantidadTokens, owner());
     }
 }

@@ -35,6 +35,10 @@ contract ParcelasERC721 is ERC721, Ownable {
         _;
     }
 
+    function isParcela(uint256 parcelaId) public view returns (bool) {
+        return parcelas[parcelaId].id == parcelaId;
+    }
+
     /**@dev Obtiene el total de parcelas existentes.
      * @return Entero indicando el total de parcelas existentes.
      */
