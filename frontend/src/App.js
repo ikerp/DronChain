@@ -16,40 +16,40 @@ import { PROPIETARIO, EMPRESA, ANONIMO, SIN_METAMASK } from "./utils/config";
 import { Toast } from "./utils/toast";
 
 function App() {
-  // State (hooks) ------------------
+  // State (hooks)
   // web3
-  const [web3, setWeb3] = useState(undefined);
+  const [ web3, setWeb3 ] = useState(undefined);
 
   // INSTANCIAS CONTRATOS
   // Instancia del SC DronChain
-  const [dronChain, setDronChain] = useState([]);
+  const [ dronChain, setDronChain ] = useState([]);
   // Instancia del SC DronesERC721
-  const [dronesERC721, setDronesERC721] = useState([]);
+  const [ dronesERC721, setDronesERC721 ] = useState([]);
   // Instancia del SC ParcelasERC721
-  const [parcelasERC721, setParcelasERC721] = useState([]);
+  const [ parcelasERC721, setParcelasERC721 ] = useState([]);
   // Instancia del SC Empresas
-  const [empresas, setEmpresas] = useState([]);
+  const [ empresasSC, setEmpresasSC ] = useState([]);
   // Instancia del SC Droken
-  const [droken, setDroken] = useState([]);
+  const [ droken, setDroken ] = useState([]);
 
   // CUENTAS Y TIPOS DE USUARIO
   // Cuenta con la que se esta trabajando
-  const [cuenta, setCuenta] = useState(undefined);
+  const [ cuenta, setCuenta ] = useState(undefined);
   // Propietario de la aplicacion
-  const [owner, setOwner] = useState(undefined);
+  const [ owner, setOwner ] = useState(undefined);
   // Tipo de usuario validado
-  const [tipoUsuario, setTipoUsuario] = useState(SIN_METAMASK);
+  const [ tipoUsuario, setTipoUsuario ] = useState(SIN_METAMASK);
 
   // Drones existentes
-  const [drones, setDrones] = useState([]);
+  const [ drones, setDrones ] = useState([]);
+  const [ dronContratado, setDronContratado] = useState(false);
+  // Empresas existentes
+  const [ empresas, setEmpresas ] = useState([]);
   // Parcelas existentes
-  const [parcelas, setParcelas] = useState([]);
+  const [ parcelas, setParcelas ] = useState([]);
   // Cantidad de Drokens disponibles por usuario
-  const [saldo, setSaldo] = useState(0);
-
-  // Notificaciones al propietario web de eventos ocurridos
-  const [toastEmpresaCreada, setToastEmpresaCreada] = useState(null);
-  const [toastDronContratado, setToastDronContratado] = useState(null);
+  const [ saldo, setSaldo ] = useState(0);
+  const [ incrementoSaldo, setIncrementoSaldo ] = useState(false);
 
   // componentDidMount()
   useEffect(() => {
@@ -78,11 +78,11 @@ function App() {
         );
         setParcelasERC721(parcelasERC721);
         const empresasAddress = await dronChain.getEmpresasContract();
-        const empresas = await EmpresasContract(
+        const empresasSC = await EmpresasContract(
           web3.currentProvider,
           empresasAddress
         );
-        setEmpresas(empresas);
+        setEmpresasSC(empresasSC);
         const drokenAddress = await dronChain.getDrokenContract();
         const droken = await DrokenContract(
           web3.currentProvider,
@@ -91,10 +91,11 @@ function App() {
         setDroken(droken);
 
         // Inicializar la cuenta del usuario y obtener propietario web
-        const cuenta = (await web3.eth.getAccounts())[0];
-        setCuenta(cuenta.toLowerCase()); // Metamask trabaja en minusculas
-        const owner = await dronChain.owner();
-        setOwner(owner.toLowerCase());        
+        // Metamask trabaja en minusculas
+        let cuenta = (await web3.eth.getAccounts())[0].toLowerCase();
+        setCuenta(cuenta); 
+        let owner = (await dronChain.owner()).toLowerCase();
+        setOwner(owner);        
 
         // LISTENERS DE EVENTOS
         // Registrarse mediante Metamask al evento que se ejecuta al actualizarse la cuenta
@@ -143,7 +144,7 @@ function App() {
               ...parcelas,
               {
                 'id': event.returnValues.id,
-                'empresa': event.returnValues.empresa,
+                'empresa': event.returnValues.empresa.toLowerCase(),
                 'alturaVueloMinima': event.returnValues.alturaVueloMinima,
                 'alturaVueloMaxima': event.returnValues.alturaVueloMaxima,
                 'pesticida': event.returnValues.pesticida
@@ -155,16 +156,26 @@ function App() {
         }); 
         // Gestionar el evento de empresa registrada
         // event EmpresaRegistrada(_cuenta, _nombre, _cif)
-        empresas.EmpresaRegistrada({
-          fromBlock:'latest',
+        empresasSC.EmpresaRegistrada({
+          fromBlock:0,
           toBlock:'latest'
         }, async (error, event) => {
           if (!error) {
             console.log('------- EVENTO EMPRESA REGISTRADA -------');
-            const cuentaActiva = (await web3.eth.getAccounts())[0]
-            console.log('cuenta:',cuentaActiva)
-            console.log('owner:',owner)
-            if (cuentaActiva === owner) {
+            const ultimoBloque = await web3.eth.getBlockNumber();           
+
+            setEmpresas(empresas => [
+              ...empresas,
+              {
+                'cuenta': event.returnValues._cuenta.toLowerCase(),
+                'nombre': event.returnValues._nombre,
+                'cif': event.returnValues._cif
+              }
+            ]);
+
+            const cuentaActiva = (await web3.eth.getAccounts())[0].toLowerCase();
+            setCuenta(cuentaActiva);
+            if (cuentaActiva === owner && event.blockNumber === ultimoBloque) {
               Toast.fire({
                 icon: 'info',
                 title: '¡Se ha registrado una nueva empresa!'
@@ -182,7 +193,9 @@ function App() {
         }, async (error, event) => {
           if (!error) {
             console.log('------- EVENTO TRANSFERENCIA REALIZADA -------');
-            const saldo = await dronChain.getDrokens(cuenta);
+            const cuentaActiva = (await web3.eth.getAccounts())[0].toLowerCase();
+            setCuenta(cuentaActiva);            
+            const saldo = await dronChain.getDrokens(cuentaActiva);
             setSaldo(Number(saldo));                
           } else {
             console.error("Transfer event: ", error);
@@ -196,9 +209,9 @@ function App() {
         }, async (error, event) => {
           if (!error) {
             console.log('------- EVENTO DRON CONTRATADO -------'); 
-            const cuentaActiva = (await web3.eth.getAccounts())[0]
-            console.log('cuenta:',cuentaActiva)
-            console.log('owner:',owner)
+            setDronContratado(!dronContratado);
+            const cuentaActiva = (await web3.eth.getAccounts())[0].toLowerCase();
+            setCuenta(cuentaActiva);
             if (cuentaActiva === owner) {
               Toast.fire({
                 icon: 'info',
@@ -223,7 +236,6 @@ function App() {
         });
       } catch (error) {
         if (web3 === undefined) {
-          console.log(web3);
           console.error("ERROR: No se pudo cargar web3.");
         } else {
           if (cuenta === undefined)
@@ -236,7 +248,7 @@ function App() {
             console.error(
               "ERROR: No se pudo cargar el contrato parcelasERC721."
             );
-          if (empresas.length === 0)
+          if (empresasSC.length === 0)
             console.error("ERROR: No se pudo cargar el contrato empresas.");
           if (droken.length === 0)
             console.error("ERROR: No se pudo cargar el contrato droken.");
@@ -247,44 +259,41 @@ function App() {
     init();
   }, []);
 
-  useEffect(() => {
-    const comprobarUsuario = async () => {
-      if (Object.keys(empresas).length !== 0 && owner !== undefined) {
-        if (cuenta === owner) {
-          // Propietario de la web: acceso a drones
-          setTipoUsuario(PROPIETARIO);
-        } else {
-          const result = await dronChain.isEmpresa(cuenta);
-          if (result) {
-            // Empresa registrada: acceso a empresas/parcelas
-            setTipoUsuario(EMPRESA);
+  useEffect(
+    () => {
+      const comprobarUsuario = async () => {
+        if (Object.keys(empresasSC).length !== 0 && owner !== undefined) {
+          if (cuenta === owner) {
+            // Propietario de la web: acceso a drones
+            setTipoUsuario(PROPIETARIO);
           } else {
-            // Empresa sin registrar: formulario registro
-            setTipoUsuario(ANONIMO);
+            const result = await dronChain.isEmpresa(cuenta);
+            if (result) {
+              // Empresa registrada: acceso a empresas/parcelas
+              setTipoUsuario(EMPRESA);
+            } else {
+              // Empresa sin registrar: formulario registro
+              setTipoUsuario(ANONIMO);
+            }
           }
         }
-      }
-    };
+      };
 
-    const obtenerSaldo = async () => {
-      if (cuenta !== undefined && dronChain.length !== 0) {
-        const saldo = await dronChain.getDrokens(cuenta);
-        setSaldo(Number(saldo));
-      }
-    };
+      const obtenerSaldo = async () => {
+        if (cuenta !== undefined && Object.keys(dronChain).length !== 0) {
+          const saldo = await dronChain.getDrokens(cuenta);
+          setSaldo(Number(saldo));
+        }
+      };
 
-    /*if (web3 === undefined) {
+      if (cuenta === undefined) {
         setTipoUsuario(SIN_METAMASK);
-      } else */
-    //if (Object.keys(dronChain).length !== 0) {
-    if (cuenta === undefined) {
-      setTipoUsuario(SIN_METAMASK);
-    } else {
-      comprobarUsuario();
-      obtenerSaldo();
-    }
-    //}
-  }, [cuenta, empresas, owner, dronChain]);
+      } else {
+        comprobarUsuario();
+        obtenerSaldo();
+      }
+    }, [cuenta, empresasSC, empresas, owner, dronChain, incrementoSaldo]
+  );
 
   return (
     <Fragment>
@@ -319,10 +328,17 @@ function App() {
           render={() => (
             <PanelPropietario
               dronChain={dronChain}
+              droken={droken}
               owner={owner}
               cuenta={cuenta}
               saldo={saldo}
+              setSaldo={setSaldo}
               drones={drones}
+              empresas={empresas}
+              parcelas={parcelas}
+              dronContratado={dronContratado}
+              incrementoSaldo={incrementoSaldo}
+              setIncrementoSaldo={setIncrementoSaldo}
             />
           )}
         />
@@ -339,6 +355,8 @@ function App() {
               setSaldo={setSaldo}
               parcelas={parcelas}
               drones={drones}
+              incrementoSaldo={incrementoSaldo}
+              setIncrementoSaldo={setIncrementoSaldo}              
             />
           )}
         />          

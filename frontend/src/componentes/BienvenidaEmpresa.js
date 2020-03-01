@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-function BienvenidaEmpresa({ cuenta, dronChain }) {
+function BienvenidaEmpresa({ cuenta, dronChain, setSaldo }) {
     
     const [ nombre, setNombre ] = useState('');
     const [ cif, setCif ] = useState('');

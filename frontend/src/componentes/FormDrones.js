@@ -65,7 +65,6 @@ function FormDrones({cuenta, dronChain}) {
                 await dronChain.registrarDron(alturaVueloMinima, alturaVueloMaxima, pesticidas, coste, { from: cuenta });
             } catch (error) {
                 console.error('ERROR: No se pudo crear el dron.');
-                console.error(error)
             }
         }
     }
@@ -81,7 +80,7 @@ function FormDrones({cuenta, dronChain}) {
     return(
         <div className="card bg-light border-secondary h-100 mt-2 mt-sm-0">
             <div className="card-header bg-secondary text-white text-uppercase">
-                <h4 className="mb-0"><strong>Crear Dron</strong></h4>
+                <h5 className="mb-0"><strong>Crear Dron</strong></h5>
             </div>
             <div className="card-body text-left pb-0">
                 <form onSubmit={registrarDron} noValidate>

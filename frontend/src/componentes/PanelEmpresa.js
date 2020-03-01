@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Redirect, withRouter } from 'react-router-dom';
 
 import DatosUsuario from './DatosUsuario';
@@ -6,7 +6,19 @@ import FormParcelas from './FormParcelas';
 import ListadoParcelas from './ListadoParcelas';
 
 function PanelEmpresa(props) {
-    const { dronChain, droken, owner, cuenta, saldo, setSaldo, parcelas, drones, history } = props;
+    const {
+      dronChain,
+      droken,
+      owner,
+      cuenta,
+      saldo,
+      setSaldo,
+      parcelas,
+      drones,
+      incrementoSaldo,
+      setIncrementoSaldo,
+      history
+    } = props;
 
     const [ parcelasEmpresa, setParcelasEmpresa ] = useState([]);
        
@@ -16,12 +28,7 @@ function PanelEmpresa(props) {
             const obtenerParcelasEmpresa = () => {
                 const result = parcelas.filter(parcela => parcela.empresa.toLowerCase() === cuenta);
                 setParcelasEmpresa(result);
-            }     
-            /*
-            const obtenerSaldoEmpresa = async () => {
-                const saldo = await dronChain.getDrokens(cuenta);
-                setSaldo(Number(saldo));
-            }*/
+            }
 
             const checkEmpresa = async () => {
                 let isEmpresa = false;
@@ -39,8 +46,6 @@ function PanelEmpresa(props) {
                 checkEmpresa();
             }
 
-            //obtenerSaldoEmpresa();
-        //}, [ cuenta, parcelas, dronChain ]
         }, [ cuenta, parcelas ]
     )
 
@@ -57,6 +62,9 @@ function PanelEmpresa(props) {
                             owner={owner}
                             cuenta={cuenta}
                             saldo={saldo}
+                            setSaldo={setSaldo}
+                            incrementoSaldo={incrementoSaldo}
+                            setIncrementoSaldo={setIncrementoSaldo}
                         />
                     </div>
                     <div className="col-12 col-md-8">

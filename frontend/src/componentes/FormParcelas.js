@@ -57,7 +57,6 @@ function FormParcelas({cuenta, dronChain}) {
                 setPesticida('');
             } catch (error) {
                 console.error('ERROR: No se pudo crear la parcela.');
-                console.error(error)
             }        
         }
     }
@@ -65,7 +64,7 @@ function FormParcelas({cuenta, dronChain}) {
     return(
         <div className="card bg-light border-secondary h-100 mt-2 mt-sm-0">
             <div className="card-header bg-secondary text-white text-uppercase">
-                <h4 className="mb-0"><strong>Crear Parcela</strong></h4>
+                <h5 className="mb-0"><strong>Crear Parcela</strong></h5>
             </div>
             <div className="card-body text-left pb-0">
                 <form onSubmit={registrarParcela} noValidate>

@@ -5,7 +5,6 @@ import Spinner from './Spinner';
 import Swal from 'sweetalert2';
 
 import { PESTICIDAS } from '../utils/config';
-//import parcelaPendienteFumigar from '../utils/parcelaPendienteFumigar';
 
 function ListadoParcelas(props) {
 
@@ -24,49 +23,40 @@ function ListadoParcelas(props) {
         let error = false;
 
         if (dronId !== '') {
-            /*const pendiente = await parcelaPendienteFumigar(dronChain, parcelaId);
-            if (pendiente) {
-                Swal.fire({
-                    icon: 'error',
-                    title: '¡Contrato desestimado!',
-                    text: 'La parcela está pendiente de ser fumigada',                
-                    confirmButtonColor: '#8E8C84'
-                }); 
-            } else {*/
-                const dron = await dronChain.getDron(dronId);
+            const dron = await dronChain.getDron(dronId);
+            try {
+                console.log('cuenta:',cuenta)
+                await droken.increaseAllowance(dronChain.address, Number(dron.coste), { from: cuenta });
+            } catch (err) {
+                error = true;
+                console.error('No se ha concedido el gasto para contratar el Dron')
+            }
+            if (!error) {
+                error = false;
                 try {
-                    await droken.increaseAllowance(dronChain.address, Number(dron.coste), { from: cuenta });
+                    await dronChain.contratarDron(Number(dronId), Number(parcelaId), { from: cuenta });
                 } catch (err) {
                     error = true;
-                    console.error('No se ha concedido el gasto para contratar el Dron')
-                }
-                if (!error) {
-                    error = false;
-                    try {
-                        await dronChain.contratarDron(Number(dronId), Number(parcelaId), { from: cuenta });
-                    } catch (err) {
-                        error = true;
-                        await droken.decreaseAllowance(dronChain.address, Number(dron.coste), { from: cuenta });
-                        console.error('No se ha podido contratar el Dron')
-                    }                
-                }
-                if (!error) {
-                    setRecargar(!recargar);
-                    Swal.fire({
-                        icon: 'success',
-                        title: `¡Dron ${dronId} contratado por ${dron.coste} DRK!`,
-                        text: 'Gracias por utilizar nuestros servicios',                
-                        confirmButtonColor: '#8E8C84'
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: '¡Proceso detenido!',
-                        text: 'El dron no ha podido ser contratado',                
-                        confirmButtonColor: '#8E8C84'
-                    });                
-                }
-            //}   
+                    await droken.decreaseAllowance(dronChain.address, Number(dron.coste), { from: cuenta });
+                    console.error('No se ha podido contratar el Dron')
+                }                
+            }
+            if (!error) {
+                setRecargar(!recargar);
+                Swal.fire({
+                    icon: 'success',
+                    title: `¡Dron ${dronId} contratado por ${dron.coste} DRK!`,
+                    text: 'Gracias por utilizar nuestros servicios',                
+                    confirmButtonColor: '#8E8C84'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: '¡Proceso detenido!',
+                    text: 'El dron no ha podido ser contratado',                
+                    confirmButtonColor: '#8E8C84'
+                });                
+            } 
             setDron('');            
         }
     }
@@ -124,10 +114,7 @@ function ListadoParcelas(props) {
 
     useEffect(
         ()=> {
-            //if (recargar) {
-                obtenerParcelasPendienteFumigar();
-                //setRecargar(false);
-            //}
+            obtenerParcelasPendienteFumigar();
         }, [ parcelasEmpresa, recargar ]
     );
 
@@ -142,7 +129,7 @@ function ListadoParcelas(props) {
         <table className="table table-hover table-sm">
             <thead>
                 <tr className="bg-secondary text-white text-uppercase">
-                    <th colSpan="5"><h4 className="m-2"><strong>Parcelas existentes</strong></h4></th>
+                    <th colSpan="5"><h5 className="m-2"><strong>Parcelas existentes</strong></h5></th>
                 </tr>
                 <tr className="bg-light">
                     <th scope="col">#</th>

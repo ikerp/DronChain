@@ -20,6 +20,7 @@ function Bienvenida(props) {
                     <BienvenidaEmpresa
                         cuenta={cuenta}
                         dronChain={dronChain}
+                        setSaldo={setSaldo}
                     />
                 ) 
             } 
