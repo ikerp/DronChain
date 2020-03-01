@@ -95,4 +95,18 @@ contract ParcelasERC721 is ERC721, Ownable {
 
         emit ParcelaRegistrada(contador, _empresa, _alturaVueloMinima, _alturaVueloMaxima, _pesticida);
     }
+
+    function transferirParc3ela(uint256 parcelaId, address to) public onlyOwner parcelaExiste(parcelaId) {
+        require(to != address(0), "La address del destinatario no es válida");
+
+        ERC721.transferFrom(parcelas[parcelaId].empresa, to, parcelaId);
+
+        parcelas[parcelaId].empresa = to;
+    }
+
+    function burn(uint256 parcelaId) public onlyOwner parcelaExiste(parcelaId) {
+        ERC721._burn(parcelas[parcelaId].empresa, parcelaId);
+
+        parcelas[parcelaId].id = 0;
+    }
 }
