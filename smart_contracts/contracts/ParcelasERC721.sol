@@ -35,6 +35,11 @@ contract ParcelasERC721 is ERC721, Ownable {
         _;
     }
 
+    modifier direccionValida(address direccion) {
+        require (direccion != address(0), 'La direccion no es valida');
+        _;
+    }
+
     function isParcela(uint256 parcelaId) public view returns (bool) {
         return parcelas[parcelaId].id == parcelaId;
     }
@@ -82,6 +87,7 @@ contract ParcelasERC721 is ERC721, Ownable {
     function mint(address _empresa, uint256 _alturaVueloMinima, uint256 _alturaVueloMaxima, uint256 _pesticida)
         public
         onlyOwner
+        direccionValida(_empresa)
     {
         contador++;
 
@@ -94,5 +100,22 @@ contract ParcelasERC721 is ERC721, Ownable {
         parcelas[contador].pesticida = _pesticida;
 
         emit ParcelaRegistrada(contador, _empresa, _alturaVueloMinima, _alturaVueloMaxima, _pesticida);
+    }
+
+    function transferirParcela(uint256 parcelaId, address to)
+        public
+        onlyOwner
+        parcelaExiste(parcelaId)
+        direccionValida(to)
+    {
+        ERC721.transferFrom(parcelas[parcelaId].empresa, to, parcelaId);
+
+        parcelas[parcelaId].empresa = to;
+    }
+
+    function burn(uint256 parcelaId) public onlyOwner parcelaExiste(parcelaId) {
+        ERC721._burn(parcelas[parcelaId].empresa, parcelaId);
+
+        parcelas[parcelaId].id = 0;
     }
 }

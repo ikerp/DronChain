@@ -15,6 +15,19 @@ contract Empresas is Ownable {
 
     event EmpresaRegistrada(address _cuenta, string _nombre, string _cif);
 
+    /**
+     * @dev Se lanza si es llamado por cualquier cuenta de empresa que no exista
+     */
+    modifier empresaValida(address _cuenta) {
+        require(empresas[_cuenta].existe, "La empresa no existe");
+        _;
+    }
+
+    modifier direccionValida(address direccion) {
+        require (direccion != address(0), 'La direccion no es valida');
+        _;
+    }
+
     /**@dev Registra una nueva empresa.
      * @param _cuenta Cuenta de la nueva empresa.
      * @param _nombre Nombre de la nueva empresa.
@@ -24,7 +37,7 @@ contract Empresas is Ownable {
         address _cuenta,
         string memory _nombre,
         string memory _cif
-    ) public onlyOwner {
+    ) public onlyOwner direccionValida(_cuenta) {
         empresas[_cuenta] = Empresa(_cuenta, _nombre, _cif, true);
         emit EmpresaRegistrada(_cuenta, _nombre, _cif);
     }
@@ -51,13 +64,5 @@ contract Empresas is Ownable {
      */
     function isEmpresa(address _cuenta) public view returns (bool) {
         return empresas[_cuenta].existe;
-    }
-
-    /**
-     * @dev Se lanza si es llamado por cualquier cuenta de empresa que no exista
-     */
-    modifier empresaValida(address _cuenta) {
-        require(empresas[_cuenta].existe, "La empresa no existe");
-        _;
     }
 }
