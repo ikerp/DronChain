@@ -14,11 +14,11 @@ contract('DronERC721 Tests', (accounts) => {
 
     const address0 = "0x0000000000000000000000000000000000000000";
 
-    const registrarDron = async (sender) => {
+    const registrarDron = async (owner, sender) => {
         let dronId
 
         const tx = await dronesERC721.mint(
-            _testOwner,
+            owner,
             _alturaVueloMinima,
             _alturaVueloMaxima,
             _pesticidas,
@@ -31,7 +31,7 @@ contract('DronERC721 Tests', (accounts) => {
             const pesticidasCorrectos = ev.pesticidas.every((pesticida, i) => {
                 return Number(pesticida) === _pesticidas[i]
             })
-            return ev.empresa == _testOwner
+            return ev.empresa == owner
                 && ev.alturaVueloMinima == _alturaVueloMinima
                 && ev.alturaVueloMaxima == _alturaVueloMaxima
                 && pesticidasCorrectos
@@ -42,7 +42,7 @@ contract('DronERC721 Tests', (accounts) => {
     }
 
     beforeEach(async () => {
-        dronesERC721 = await DronesERC721.new()
+        dronesERC721 = await DronesERC721.new({ from: _testOwner })
     })
 
     it('Contrato se inicia correctamente', async () => {
@@ -57,7 +57,7 @@ contract('DronERC721 Tests', (accounts) => {
     it('Registrar un nuevo dron', async () => {
         const balanceIni = await dronesERC721.balanceOf(_testOwner)
 
-        const dronId = await registrarDron(_testOwner)
+        const dronId = await registrarDron(_testOwner, _testOwner)
 
         const balance = await dronesERC721.balanceOf(_testOwner)
         const owner = await dronesERC721.ownerOf(dronId)
@@ -74,7 +74,7 @@ contract('DronERC721 Tests', (accounts) => {
     it("No se puede registrar un dron desde otra cuenta que no sea el propietario", async () => {
         let error
         try {
-            await registrarDron(_testAccount1);
+            await registrarDron(_testAccount1, _testAccount1);
         } catch (e) {
             error = e.reason
         }
@@ -85,8 +85,22 @@ contract('DronERC721 Tests', (accounts) => {
         )
     })
 
+    it("No se puede registrar un dron cuyo propietario no sea una address valida", async () => {
+        let error
+        try {
+            await registrarDron(address0, _testOwner);
+        } catch (e) {
+            error = e.reason
+        }
+        assert.equal(
+            error,
+            "La direccion no es valida",
+            "El error devuelto no es correcto"
+        )
+    })
+
     it("Recuperar la información del dron registrado", async () => {
-        const dronId = await registrarDron(_testOwner)
+        const dronId = await registrarDron(_testOwner, _testOwner)
 
         const {
             id,
@@ -130,7 +144,7 @@ contract('DronERC721 Tests', (accounts) => {
     it('No se puede recuperar la información de un dron que no existe', async () => {
         let error
         
-        const dronId = await registrarDron(_testOwner)
+        const dronId = await registrarDron(_testOwner, _testOwner)
         const dronIdErroneo = dronId + 1
 
         try {
@@ -141,13 +155,13 @@ contract('DronERC721 Tests', (accounts) => {
 
         assert.equal(
             error,
-            'Returned error: VM Exception while processing transaction: revert El dron solicitado no existe.',
+            'Returned error: VM Exception while processing transaction: revert El dron solicitado no existe',
             'El error devuelto no es correcto'
         )
     })
 
     it('Comprobar si un dron existe', async () => {
-        const dronId = await registrarDron(_testOwner)
+        const dronId = await registrarDron(_testOwner, _testOwner)
         const dronExiste = await dronesERC721.isDron(dronId)
 
         assert.ok(dronExiste, 'La comprobación no es correcta')
@@ -156,7 +170,7 @@ contract('DronERC721 Tests', (accounts) => {
     it('Obtener el número de drones registrados', async () => {
         const numeroDronesIni = await dronesERC721.numeroDrones()
     
-        await registrarDron(_testOwner)
+        await registrarDron(_testOwner, _testOwner)
 
         const numeroDrones = await dronesERC721.numeroDrones()
 
@@ -170,7 +184,7 @@ contract('DronERC721 Tests', (accounts) => {
     it('Transferir un dron', async () => {
         const saldoIni = await dronesERC721.balanceOf(_testAccount1)
 
-        const dronId = await registrarDron(_testOwner)
+        const dronId = await registrarDron(_testOwner, _testOwner)
         const tx = await dronesERC721.transferirDron(
             dronId,
             _testAccount1,
@@ -207,7 +221,7 @@ contract('DronERC721 Tests', (accounts) => {
     it('Solo el propietario puede ordenar la transferencia del dron', async () => {
         let error
 
-        const dronId = await registrarDron(_testOwner)
+        const dronId = await registrarDron(_testOwner, _testOwner)
 
         try {
             await dronesERC721.transferirDron(
@@ -215,7 +229,6 @@ contract('DronERC721 Tests', (accounts) => {
                 _testAccount1,
                 { from: _testAccount1 }
             )
-            console.log('no da error')
         } catch (e) {
             error = e.reason
         }
@@ -231,7 +244,7 @@ contract('DronERC721 Tests', (accounts) => {
     it('Solo se puede transferir un dron existente', async () => {
         let error
 
-        const dronId = await registrarDron(_testOwner)
+        const dronId = await registrarDron(_testOwner, _testOwner)
         const dronIdErroneo = dronId + 1
 
         try {
@@ -246,7 +259,7 @@ contract('DronERC721 Tests', (accounts) => {
 
         assert.equal(
             error,
-            'El dron solicitado no existe.',
+            'El dron solicitado no existe',
             'El error devuelto no es correcto'
         )
     })
@@ -254,8 +267,7 @@ contract('DronERC721 Tests', (accounts) => {
     it('Solo se puede transferir un dron a una dirección válida', async () => {
         let error
 
-        const dronId = await registrarDron(_testOwner)
-
+        const dronId = await registrarDron(_testOwner, _testOwner)
         try {
             await dronesERC721.transferirDron(
                 dronId,
@@ -268,13 +280,13 @@ contract('DronERC721 Tests', (accounts) => {
 
         assert.equal(
             error,
-            'La address del destinatario no es valida',
+            'La direccion no es valida',
             'El error devuelto no es correcto'
         )
     })
 
     it('Eliminar un dron', async () => {
-        const dronId = await registrarDron(_testOwner)
+        const dronId = await registrarDron(_testOwner, _testOwner)
 
         await dronesERC721.burn(dronId)
 
@@ -286,7 +298,7 @@ contract('DronERC721 Tests', (accounts) => {
     it('No se puede eliminar un dron que no existe', async () => {
         let error
 
-        const dronId = await registrarDron(_testOwner)
+        const dronId = await registrarDron(_testOwner, _testOwner)
 
         try {
             const dronIdErroneo = dronId + 1
@@ -297,7 +309,7 @@ contract('DronERC721 Tests', (accounts) => {
 
         assert.equal(
             error,
-            'El dron solicitado no existe.',
+            'El dron solicitado no existe',
             'El error devuelto no es correcto'
         )
     })
