@@ -35,23 +35,30 @@ contract ParcelasERC721 is ERC721, Ownable {
         _;
     }
 
-    modifier direccionValida(address direccion) {
-        require (direccion != address(0), 'La direccion no es valida');
+    /**
+     * @dev Se lanza si la cuenta no es valida
+     */
+    modifier cuentaValida(address cuenta) {
+        require (cuenta != address(0), 'La cuenta no es valida');
         _;
     }
 
+    /**@dev Devuelve si una parcela esta registrada.
+     * @param parcelaId Identificador de la parcela.
+    * @return Booleano indicando si la parcela esta registrada.
+     */
     function isParcela(uint256 parcelaId) public view returns (bool) {
         return parcelas[parcelaId].id == parcelaId;
     }
 
-    /**@dev Obtiene el total de parcelas existentes.
-     * @return Entero indicando el total de parcelas existentes.
+    /**@dev Devuelve el numero de parcelas registradas.
+     * @return Numero de parcelas registradas.
      */
     function numeroParcelas() public view returns (uint256) {
         return contador;
     }
 
-    /**@dev Obtiene los datos de una parcela existente.
+    /**@dev Devuelve los datos del registro de una parcela
      * @param parcelaId Identificador de la parcela.
      * @return id Identificador de la parcela.
      * @return empresa Cuenta de la empresa propietaria.
@@ -87,7 +94,7 @@ contract ParcelasERC721 is ERC721, Ownable {
     function mint(address _empresa, uint256 _alturaVueloMinima, uint256 _alturaVueloMaxima, uint256 _pesticida)
         public
         onlyOwner
-        direccionValida(_empresa)
+        cuentaValida(_empresa)
     {
         contador++;
 
@@ -102,17 +109,24 @@ contract ParcelasERC721 is ERC721, Ownable {
         emit ParcelaRegistrada(contador, _empresa, _alturaVueloMinima, _alturaVueloMaxima, _pesticida);
     }
 
+    /**@dev Transfiere la propiedad de una parcela.
+     * @param parcelaId Identificador de la parcela.
+     * @param to Cuenta del nuevo propietario de la parcela.
+     */
     function transferirParcela(uint256 parcelaId, address to)
         public
         onlyOwner
         parcelaExiste(parcelaId)
-        direccionValida(to)
+        cuentaValida(to)
     {
         ERC721.transferFrom(parcelas[parcelaId].empresa, to, parcelaId);
 
         parcelas[parcelaId].empresa = to;
     }
 
+    /**@dev Elimina el registro de una parcela.
+     * @param parcelaId Identificador de la parcela.
+     */
     function burn(uint256 parcelaId) public onlyOwner parcelaExiste(parcelaId) {
         ERC721._burn(parcelas[parcelaId].empresa, parcelaId);
 
