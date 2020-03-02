@@ -87,7 +87,7 @@ contract("ParcelasERC721 Tests", accounts => {
         }
         assert.equal(
             error,
-            "La direccion no es valida",
+            "La cuenta no es valida",
             "El error devuelto no es correcto"
         )
     })
@@ -270,7 +270,7 @@ contract("ParcelasERC721 Tests", accounts => {
 
         assert.equal(
             error,
-            'La direccion no es valida',
+            'La cuenta no es valida',
             'El error devuelto no es correcto'
         )
     })

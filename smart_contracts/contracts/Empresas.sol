@@ -23,8 +23,11 @@ contract Empresas is Ownable {
         _;
     }
 
-    modifier direccionValida(address direccion) {
-        require (direccion != address(0), 'La direccion no es valida');
+    /**
+     * @dev Se lanza si la cuenta no es valida
+     */
+    modifier cuentaValida(address cuenta) {
+        require (cuenta != address(0), 'La cuenta no es valida');
         _;
     }
 
@@ -37,7 +40,7 @@ contract Empresas is Ownable {
         address _cuenta,
         string memory _nombre,
         string memory _cif
-    ) public onlyOwner direccionValida(_cuenta) {
+    ) public onlyOwner cuentaValida(_cuenta) {
         empresas[_cuenta] = Empresa(_cuenta, _nombre, _cif, true);
         emit EmpresaRegistrada(_cuenta, _nombre, _cif);
     }

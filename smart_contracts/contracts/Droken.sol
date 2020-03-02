@@ -22,9 +22,6 @@ contract Droken is ERC20, ERC20Detailed, Ownable {
     /**@dev Crea nuevos tokens (Droken) y los asigna a la cuenta incrementando la cantidad total.
      * @param amount Cantidad de tokens (Droken) a crear.
      */
-    // function mint(uint256 amount) public onlyOwner {
-    //     _mint(msg.sender, amount);
-    // }
     function mint(uint256 amount, address to) public onlyOwner {
         _mint(to, amount);
     }
