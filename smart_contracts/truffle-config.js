@@ -14,10 +14,10 @@ module.exports = {
     },
     // Red de desarrollo de Alastria
     testnetAlastria: {
-      host: '10.11.170.81',
+      host: '10.11.170.82',
       port: 22001,
       network_id: '*', // matchear cualquier red contra la que se lancen los scripts
-      gas: 0xfffff, // limite de gas por transaccion
+      gas: 0xffffff, // limite de gas por transaccion
       gasPrice: 0x0,
       from: '0x74d4c56d8dcbc10a567341bfac6da0a8f04dc41d'
     }
