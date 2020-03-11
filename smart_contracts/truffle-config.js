@@ -10,7 +10,6 @@ module.exports = {
       host: 'localhost',
       port: 7545,
       network_id: '*', // matchear cualquier red contra la que se lancen los scripts
-      // gas: 15000000 // limite de gas por transaccion
     },
     // Red de desarrollo de Alastria
     testnetAlastria: {
