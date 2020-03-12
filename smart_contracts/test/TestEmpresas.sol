@@ -40,8 +40,9 @@ contract TestEmpresas {
     }
 
     function testSoloElOwnerPuedeRegistrarNuevasEmpresas() public {
-        // Deberia ser true y se obtiene false ----------------------------------------------------
-        (bool result, ) = empresas.owner().call(
+        empresas.transferOwnership(CUENTA_1);
+
+        (bool result, ) = address(this).call(
             abi.encodePacked(
                 empresas.registrarEmpresa.selector,
                 abi.encode(CUENTA_1, nombreEmpresa, cifEmpresa)

@@ -56,8 +56,9 @@ contract TestDroken {
     }
 
     function testSoloElOwnerPuedeAniadirNuevosDrokens() public {
-        // Deberia ser true y se obtiene false ----------------------------------------------------
-        (bool result, ) = droken.owner().call(
+        droken.transferOwnership(CUENTA_1);
+
+        (bool result, ) = address(this).call(
             abi.encodePacked(
                 droken.mint.selector,
                 abi.encode(uint256(1000), address(droken.owner()))
